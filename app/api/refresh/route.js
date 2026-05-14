@@ -9,7 +9,11 @@ export async function POST(request) {
   }
 
   try {
-    const { allZones, leaders } = await request.json()
+    const { allZones, leaders, players } = await request.json()
+
+    if (players?.length) {
+      await kv.set('players:2026', players, { ex: TTL })
+    }
 
     await Promise.all(
       allZones.map(row =>

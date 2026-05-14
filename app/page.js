@@ -1,23 +1,6 @@
-export const dynamic = 'force-dynamic'
-
 import ShotTracker from '@/components/ShotTracker'
-import { getAllPlayers } from '@/lib/wnba-api'
 
-export default async function Page() {
-  // Pre-fetch player list server-side for instant search autocomplete
-  let players = []
-  try {
-    const raw = await getAllPlayers()
-    players = raw.map(p => ({
-      id: p.PERSON_ID,
-      name: p.DISPLAY_FIRST_LAST,
-      team: p.TEAM_NAME,
-      abbr: p.TEAM_ABBREVIATION,
-    }))
-  } catch {
-    // WNBA API unreachable — client will still work with fallback data
-  }
-
+export default function Page() {
   return (
     <main>
       <nav className="h-[54px] flex items-center px-6 gap-4"
@@ -37,7 +20,7 @@ export default async function Page() {
           ))}
         </div>
       </nav>
-      <ShotTracker initialPlayers={players}/>
+      <ShotTracker />
     </main>
   )
 }
