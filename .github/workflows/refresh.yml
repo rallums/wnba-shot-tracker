@@ -2,15 +2,87 @@ name: Monday Data Refresh
 
 on:
   schedule:
-    - cron: '0 10 * * 1'  # Every Monday 10am UTC (6am ET)
-  workflow_dispatch:        # Allow manual trigger from GitHub UI
+    - cron: '0 10 * * 1'
+  workflow_dispatch:
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger data refresh
+      - name: Fetch WNBA data and push to KV
         run: |
-          curl -f -X POST "${{ secrets.SITE_URL }}/api/refresh" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json"
+          python3 - <<'EOF'
+          import urllib.request, urllib.parse, json
+
+          BASE = 'https://stats.wnba.com/stats'
+          SEASON = '2026'
+          HEADERS = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Origin': 'https://www.wnba.com',
+            'Referer': 'https://www.wnba.com/',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'x-nba-stats-origin': 'stats',
+            'x-nba-stats-token': 'true',
+          }
+
+          ZONE_PREFIXES = ['RA', 'ITP', 'MR', 'LC3', 'RC3', 'AB3', 'BC', 'C3']
+
+          def fetch(endpoint, params):
+            url = f'{BASE}/{endpoint}?' + urllib.parse.urlencode(params)
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as r:
+              return json.loads(r.read())
+
+          # Zone shooting — resultSets is object not array
+          zone_params = {
+            'College':'','Conference':'','Country':'','DateFrom':'','DateTo':'',
+            'DistanceRange':'By Zone','Division':'','DraftPick':'','DraftYear':'',
+            'GameScope':'','GameSegment':'','Height':'','LastNGames':0,'LeagueID':'10',
+            'Location':'','MeasureType':'Base','Month':0,'OpponentTeamID':0,'Outcome':'',
+            'PORound':0,'PaceAdjust':'N','PerMode':'PerGame','Period':0,
+            'PlayerExperience':'','PlayerPosition':'','PlusMinus':'N','Rank':'N',
+            'Season':SEASON,'SeasonSegment':'','SeasonType':'Regular Season',
+            'ShotClockRange':'','StarterBench':'','TeamID':0,'VsConference':'','VsDivision':'','Weight':'',
+          }
+          zone_data = fetch('leaguedashplayershotlocations', zone_params)
+          rows = zone_data['resultSets']['rowSet']
+          all_zones = []
+          for row in rows:
+            obj = {'PLAYER_ID':row[0],'PLAYER_NAME':row[1],'TEAM_ID':row[2],
+                   'TEAM_ABBREVIATION':row[3],'AGE':row[4],'NICKNAME':row[5]}
+            for i, prefix in enumerate(ZONE_PREFIXES):
+              base = 6 + i * 3
+              obj[f'{prefix}_FGM'] = row[base]
+              obj[f'{prefix}_FGA'] = row[base+1]
+              obj[f'{prefix}_FG_PCT'] = row[base+2]
+            all_zones.append(obj)
+
+          # League leaders — resultSets is array
+          leader_params = {
+            'Season':SEASON,'SeasonType':'Regular Season','PerMode':'PerGame',
+            'LeagueID':'10','MeasureType':'Base','Scope':'S','LastNGames':0,
+            'Month':0,'OpponentTeamID':0,'PaceAdjust':'N','PlusMinus':'N','Rank':'N',
+          }
+          leader_data = fetch('leaguedashplayerstats', leader_params)
+          rs = leader_data['resultSets'][0]
+          headers = rs['headers']
+          leaders = [dict(zip(headers, r)) for r in rs['rowSet']]
+
+          # POST to Vercel
+          import os
+          payload = json.dumps({'allZones': all_zones, 'leaders': leaders}).encode()
+          site_url = os.environ['SITE_URL']
+          cron_secret = os.environ['CRON_SECRET']
+          req = urllib.request.Request(
+            f'{site_url}/api/refresh',
+            data=payload,
+            headers={'Authorization': f'Bearer {cron_secret}', 'Content-Type': 'application/json'},
+            method='POST'
+          )
+          with urllib.request.urlopen(req, timeout=30) as r:
+            print(r.read().decode())
+          EOF
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
