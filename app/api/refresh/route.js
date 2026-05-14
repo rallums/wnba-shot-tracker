@@ -25,6 +25,13 @@ export async function POST(request) {
       )
     )
 
+    // Store per-player stats for individual lookups
+    await Promise.all(
+      leaders.map(p =>
+        kv.set(`player:${p.PLAYER_ID}:stats:2026`, p, { ex: TTL })
+      )
+    )
+
     const sorted = leaders
       .filter(p => p.GP >= 5)
       .sort((a, b) => b.FG3_PCT - a.FG3_PCT)
