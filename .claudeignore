@@ -1,0 +1,26 @@
+# Block Claude from reading sensitive files
+# Uses .gitignore syntax
+
+# Env files with secrets
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# Keys and credentials
+*.pem
+*.key
+*.p12
+*.crt
+secrets/
+credentials/
+.ssh/
+
+# Build/cache (large, not useful)
+.next/
+node_modules/
+.vercel/
+
+# OS
+.DS_Store
