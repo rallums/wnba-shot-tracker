@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import CourtChart from './CourtChart'
+import BettingInsights from './BettingInsights'
 
 const FALLBACK_ZONES = [
   { id: 'paint',    label: 'Paint',       fga: 4.2, fgPct: 0.68, color: '#c0392b', radius: 13, center: { x: 250, y: 370 } },
@@ -149,6 +150,8 @@ export default function ShotTracker() {
           ))}
         </div>
       </div>
+
+      <BettingInsights stats={stats} zones={zones}/>
 
       {/* All zones list */}
       <div className="p-4">
