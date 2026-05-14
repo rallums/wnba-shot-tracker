@@ -28,7 +28,7 @@ function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelec
       {onTeamChange && (
         <select value={team} onChange={e => onTeamChange(e.target.value)}
           className="w-full h-8 bg-gray-50 border border-gray-200 rounded-lg px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#FF6900]/60">
-          <option value="all">All teams ({allPlayers.length})</option>
+          <option value="all">All teams</option>
           {teams.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       )}
@@ -102,6 +102,9 @@ export default function ShotTracker() {
   const [zones, setZones]     = useState(FALLBACK_ZONES)
   const [stats, setStats]     = useState(null)
   const [filter, setFilter]   = useState('all')
+  const [view, setView]       = useState('zones')
+  const [shots, setShots]     = useState([])
+  const [shotsB, setShotsB]   = useState([])
   const [query, setQuery]     = useState('')
   const [team, setTeam]       = useState('all')
   const [loading, setLoading] = useState(false)
@@ -121,7 +124,7 @@ export default function ShotTracker() {
     fetch('/api/players').then(r => r.json()).then(setAllPlayers).catch(() => {})
     fetch('/api/player/' + DEFAULT_PLAYER.id)
       .then(r => r.json())
-      .then(d => { if (d.zones?.length) setZones(d.zones); if (d.stats) setStats(d.stats) })
+      .then(d => { if (d.zones?.length) setZones(d.zones); if (d.stats) setStats(d.stats); setShots(d.shots || []) })
       .catch(() => {})
     fetch('/api/meta').then(r => r.json()).then(d => setLastUpdated(d.lastUpdated)).catch(() => {})
   }, [])
@@ -134,6 +137,7 @@ export default function ShotTracker() {
       const d = await fetch(`/api/player/${p.id}`).then(r => r.json())
       if (d.zones?.length) setZones(d.zones)
       setStats(d.stats || null)
+      setShots(d.shots || [])
     } catch {}
     setLoading(false)
   }, [])
@@ -144,6 +148,7 @@ export default function ShotTracker() {
       const d = await fetch(`/api/player/${p.id}`).then(r => r.json())
       setZonesB(d.zones || [])
       setStatsB(d.stats || null)
+      setShotsB(d.shots || [])
     } catch {}
   }, [])
 
@@ -263,6 +268,16 @@ export default function ShotTracker() {
             </p>
           </div>
 
+          <div className="flex items-center bg-gray-100 rounded-lg p-0.5 flex-shrink-0">
+            {[['zones','Zones'],['shots','Shots']].map(([v, lbl]) => (
+              <button key={v} onClick={() => setView(v)}
+                className={`px-2.5 h-8 rounded-md text-[11px] font-bold transition-all
+                  ${view === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                {lbl}
+              </button>
+            ))}
+          </div>
+
           <button onClick={() => { setCompareOn(o => !o); if (compareOn) { setPlayerB(null); setZonesB([]); setStatsB(null) } }}
             className={`px-3 h-9 rounded-lg text-xs font-bold transition-all flex-shrink-0
               ${compareOn ? 'bg-[#FF6900] text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
@@ -307,7 +322,7 @@ export default function ShotTracker() {
                   <PlayerCard player={player} stats={stats}/>
                   <div className="mt-2"><MiniStats stats={stats}/></div>
                 </div>
-                <CourtChart zones={zones} filter={filter}/>
+                <CourtChart zones={zones} shots={shots} filter={filter} view={view}/>
               </div>
               <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
                 <div className="w-full max-w-[400px] flex items-center justify-between">
@@ -316,12 +331,12 @@ export default function ShotTracker() {
                     className="text-[11px] text-gray-400 hover:text-gray-600">change</button>
                 </div>
                 <div className="w-full max-w-[400px]"><MiniStats stats={statsB}/></div>
-                <CourtChart zones={zonesB} filter={filter}/>
+                <CourtChart zones={zonesB} shots={shotsB} filter={filter} view={view}/>
               </div>
             </div>
           ) : (
             <div className="h-full flex items-center justify-center">
-              <CourtChart zones={zones} filter={filter}/>
+              <CourtChart zones={zones} shots={shots} filter={filter} view={view}/>
             </div>
           )}
         </div>

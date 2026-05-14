@@ -13,7 +13,7 @@ export async function POST(request) {
   }
 
   try {
-    const { allZones, leaders, players } = await request.json()
+    const { allZones, leaders, players, shotsByPlayer } = await request.json()
 
     if (players?.length) {
       await kv.set('players:2026', players, { ex: TTL })
@@ -31,6 +31,15 @@ export async function POST(request) {
         kv.set(`player:${p.PLAYER_ID}:stats:2026`, p, { ex: TTL })
       )
     )
+
+    // Store per-player shot lists
+    if (shotsByPlayer) {
+      await Promise.all(
+        Object.entries(shotsByPlayer).map(([pid, shots]) =>
+          kv.set(`player:${pid}:shots:2026`, shots, { ex: TTL })
+        )
+      )
+    }
 
     const sorted = leaders
       .filter(p => p.GP >= 5)

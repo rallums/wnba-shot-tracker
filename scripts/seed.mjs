@@ -75,11 +75,41 @@ const players = allZones.map(r => ({
   team: r.TEAM_ABBREVIATION, abbr: r.TEAM_ABBREVIATION,
 }))
 
+console.log('Fetching shot charts per player...')
+const shotsByPlayer = {}
+const playerIds = allZones.map(p => p.PLAYER_ID)
+const BATCH = 4
+for (let i = 0; i < playerIds.length; i += BATCH) {
+  const batch = playerIds.slice(i, i + BATCH)
+  const results = await Promise.all(batch.map(async pid => {
+    try {
+      const data = await fetchWNBA('shotchartdetail', {
+        PlayerID: pid, Season: SEASON, SeasonType: 'Regular Season',
+        TeamID: 0, GameID: '', ContextMeasure: 'FGA', LeagueID: '10',
+        AheadBehind: '', ClutchTime: '', DateFrom: '', DateTo: '',
+        EndPeriod: 10, EndRange: 28800, GameSegment: '', LastNGames: 0,
+        Location: '', Month: 0, OpponentTeamID: 0, Outcome: '',
+        Period: 0, PointDiff: '', Position: '', RangeType: 0,
+        RookieYear: '', SeasonSegment: '', StartPeriod: 1, StartRange: 0,
+        VsConference: '', VsDivision: '',
+      })
+      const h = data.resultSets[0].headers
+      const ix = h.indexOf('LOC_X'), iy = h.indexOf('LOC_Y'), im = h.indexOf('SHOT_MADE_FLAG')
+      return { id: pid, shots: data.resultSets[0].rowSet.map(r => ({ x: r[ix], y: r[iy], m: r[im] === 1 ? 1 : 0 })) }
+    } catch {
+      return { id: pid, shots: [] }
+    }
+  }))
+  results.forEach(r => shotsByPlayer[r.id] = r.shots)
+  process.stdout.write(`\r  ${Math.min(i+BATCH, playerIds.length)}/${playerIds.length}`)
+}
+console.log('')
+
 console.log('Posting to Vercel...')
 const res = await fetch(`${SITE_URL}/api/refresh`, {
   method: 'POST',
   headers: { 'Authorization': `Bearer ${CRON_SECRET}`, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ allZones, leaders, players }),
+  body: JSON.stringify({ allZones, leaders, players, shotsByPlayer }),
 })
 const result = await res.json()
 console.log('Done:', result)

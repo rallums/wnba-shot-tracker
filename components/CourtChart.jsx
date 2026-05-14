@@ -1,10 +1,19 @@
 'use client'
 import { useState } from 'react'
 
-export default function CourtChart({ zones = [], filter = 'all' }) {
+// LOC_X: -250 to 250, LOC_Y: -50 to 400 (tenths of feet, basket at 0,0)
+// SVG: 500x460, basket at (250, 412), 470px playable width
+// factor: 470/500 = 0.94 (use 0.86 for slight inset)
+const FX = 0.86, BX = 250, BY = 412
+
+function mapShot(s) {
+  return { sx: BX + s.x * FX, sy: BY - s.y * FX, m: s.m }
+}
+
+export default function CourtChart({ zones = [], shots = [], filter = 'all', view = 'zones' }) {
   const [hovered, setHovered] = useState(null)
 
-  const filtered = zones.filter(z => {
+  const filteredZones = zones.filter(z => {
     if (filter === '3pt')   return ['corner_l','corner_r','wing_l','wing_r','top_key','deep_3'].includes(z.id)
     if (filter === 'paint') return z.id === 'paint'
     if (filter === 'hot')   return z.fgPct >= 0.45
@@ -13,6 +22,8 @@ export default function CourtChart({ zones = [], filter = 'all' }) {
 
   const lineColor = '#c4a055'
   const bgColor   = '#fdf6e3'
+
+  const mapped = shots.map(mapShot).filter(s => s.sx >= 15 && s.sx <= 485 && s.sy >= 10 && s.sy <= 450)
 
   return (
     <div className="relative w-full max-w-[620px] select-none">
@@ -52,66 +63,74 @@ export default function CourtChart({ zones = [], filter = 'all' }) {
         <line x1="470" y1="440" x2="470" y2="391" stroke={lineColor} strokeWidth="1.5"/>
         <path d="M 30 391 A 221 221 0 0 1 470 391" fill="none" stroke={lineColor} strokeWidth="1.5"/>
 
-        {/* Zone labels */}
-        {[
-          { x: 250, y: 136, label: 'TOP OF KEY' },
-          { x: 70,  y: 200, label: 'LEFT WING'  },
-          { x: 430, y: 200, label: 'RIGHT WING' },
-          { x: 125, y: 320, label: 'MID-RANGE'  },
-          { x: 375, y: 320, label: 'MID-RANGE'  },
-          { x: 250, y: 348, label: 'PAINT'      },
-        ].map(({ x, y, label }) => (
-          <text key={label+x} x={x} y={y} textAnchor="middle"
-            fill={lineColor} fontSize="7.5"
-            fontFamily="system-ui,sans-serif" fontWeight="700"
-            letterSpacing="0.12em" opacity="0.7">
-            {label}
-          </text>
+        {view === 'zones' && (
+          <>
+            {[
+              { x: 250, y: 136, label: 'TOP OF KEY' },
+              { x: 70,  y: 200, label: 'LEFT WING'  },
+              { x: 430, y: 200, label: 'RIGHT WING' },
+              { x: 125, y: 320, label: 'MID-RANGE'  },
+              { x: 375, y: 320, label: 'MID-RANGE'  },
+              { x: 250, y: 348, label: 'PAINT'      },
+            ].map(({ x, y, label }) => (
+              <text key={label+x} x={x} y={y} textAnchor="middle"
+                fill={lineColor} fontSize="7.5"
+                fontFamily="system-ui,sans-serif" fontWeight="700"
+                letterSpacing="0.12em" opacity="0.7">
+                {label}
+              </text>
+            ))}
+
+            {filteredZones.map(zone => {
+              const isHot = zone.fgPct >= 0.50
+              const isMid = zone.fgPct >= 0.40
+              const pct   = Math.round(zone.fgPct * 100)
+              const isHov = hovered === zone.id
+
+              return (
+                <g key={zone.id}
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={() => setHovered(zone.id)}
+                  onMouseLeave={() => setHovered(null)}>
+                  {isHov && (
+                    <circle cx={zone.center.x} cy={zone.center.y}
+                      r={zone.radius + 6} fill="none"
+                      stroke={zone.color} strokeWidth="1.5" opacity="0.4"/>
+                  )}
+                  <circle
+                    cx={zone.center.x} cy={zone.center.y}
+                    r={isHov ? zone.radius + 2 : zone.radius}
+                    fill={zone.color} opacity={isHov ? 0.95 : 0.82}
+                    filter={isHot ? 'url(#glow-hot)' : isMid ? 'url(#glow-mid)' : undefined}
+                    style={{ transition: 'r 0.15s, opacity 0.15s' }}
+                  />
+                  {zone.radius >= 9 && (
+                    <text x={zone.center.x} y={zone.center.y + 4}
+                      textAnchor="middle" fill="white"
+                      fontSize={zone.radius >= 12 ? "8" : "6.5"}
+                      fontFamily="system-ui,sans-serif" fontWeight="800"
+                      style={{ pointerEvents: 'none' }}>
+                      {pct}%
+                    </text>
+                  )}
+                </g>
+              )
+            })}
+          </>
+        )}
+
+        {view === 'shots' && mapped.map((s, i) => s.m ? (
+          <circle key={i} cx={s.sx} cy={s.sy} r="3" fill="#16a34a" opacity="0.85"/>
+        ) : (
+          <g key={i} opacity="0.7">
+            <line x1={s.sx - 3} y1={s.sy - 3} x2={s.sx + 3} y2={s.sy + 3} stroke="#b91c1c" strokeWidth="1.5"/>
+            <line x1={s.sx - 3} y1={s.sy + 3} x2={s.sx + 3} y2={s.sy - 3} stroke="#b91c1c" strokeWidth="1.5"/>
+          </g>
         ))}
-
-        {/* Bubbles */}
-        {filtered.map(zone => {
-          const isHot = zone.fgPct >= 0.50
-          const isMid = zone.fgPct >= 0.40
-          const pct   = Math.round(zone.fgPct * 100)
-          const isHov = hovered === zone.id
-
-          return (
-            <g key={zone.id}
-              style={{ cursor: 'pointer' }}
-              onMouseEnter={() => setHovered(zone.id)}
-              onMouseLeave={() => setHovered(null)}>
-
-              {isHov && (
-                <circle cx={zone.center.x} cy={zone.center.y}
-                  r={zone.radius + 6} fill="none"
-                  stroke={zone.color} strokeWidth="1.5" opacity="0.4"/>
-              )}
-
-              <circle
-                cx={zone.center.x} cy={zone.center.y}
-                r={isHov ? zone.radius + 2 : zone.radius}
-                fill={zone.color} opacity={isHov ? 0.95 : 0.82}
-                filter={isHot ? 'url(#glow-hot)' : isMid ? 'url(#glow-mid)' : undefined}
-                style={{ transition: 'r 0.15s, opacity 0.15s' }}
-              />
-
-              {zone.radius >= 9 && (
-                <text x={zone.center.x} y={zone.center.y + 4}
-                  textAnchor="middle" fill="white"
-                  fontSize={zone.radius >= 12 ? "8" : "6.5"}
-                  fontFamily="system-ui,sans-serif" fontWeight="800"
-                  style={{ pointerEvents: 'none' }}>
-                  {pct}%
-                </text>
-              )}
-            </g>
-          )
-        })}
       </svg>
 
-      {hovered && (() => {
-        const z = filtered.find(x => x.id === hovered)
+      {view === 'zones' && hovered && (() => {
+        const z = filteredZones.find(x => x.id === hovered)
         if (!z) return null
         return (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-xl pointer-events-none z-10 whitespace-nowrap">
@@ -123,6 +142,13 @@ export default function CourtChart({ zones = [], filter = 'all' }) {
           </div>
         )
       })()}
+
+      {view === 'shots' && (
+        <div className="absolute top-2 right-2 bg-white/90 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[10px] flex gap-3 shadow">
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-600"/>Made {shots.filter(s => s.m).length}</span>
+          <span className="flex items-center gap-1"><span className="text-red-700 font-bold">×</span>Missed {shots.filter(s => !s.m).length}</span>
+        </div>
+      )}
     </div>
   )
 }
