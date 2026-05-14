@@ -2,7 +2,7 @@ import { kv } from '@vercel/kv'
 import { rowToZones } from '@/lib/zones'
 
 export async function GET(request, { params }) {
-  const { id } = params
+  const { id } = await params
   if (!/^\d+$/.test(id)) {
     return Response.json({ error: 'Invalid ID' }, { status: 400 })
   }
