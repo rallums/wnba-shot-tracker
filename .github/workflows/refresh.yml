@@ -1,0 +1,16 @@
+name: Monday Data Refresh
+
+on:
+  schedule:
+    - cron: '0 10 * * 1'  # Every Monday 10am UTC (6am ET)
+  workflow_dispatch:        # Allow manual trigger from GitHub UI
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger data refresh
+        run: |
+          curl -f -X POST "${{ secrets.SITE_URL }}/api/refresh" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"

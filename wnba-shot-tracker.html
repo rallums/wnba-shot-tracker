@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WNBA Shot Tracker</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #1e2d7d;
+    --navy2: #2e40a4;
+    --orange: #FF6900;
+    --blue-hot: #c0392b;
+    --blue-cold: #3a86ff;
+    --gray-50: #f8f9fb;
+    --gray-100: #f0f2f6;
+    --gray-200: #e2e6ee;
+    --gray-400: #9aa3b8;
+    --gray-700: #3d4966;
+    --gray-900: #111827;
+    --green: #1a8a4a;
+    --sidebar-w: 330px;
+  }
+  html, body { height: 100%; background: white; color: var(--gray-900); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; overflow: hidden; }
+
+  /* NAV */
+  nav {
+    height: 54px; background: linear-gradient(135deg, #1a2580 0%, #2b3db0 100%);
+    display: flex; align-items: center; padding: 0 24px; gap: 20px; flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(30,45,125,0.4);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 9px; color: white;
+    font-size: 17px; font-weight: 700; white-space: nowrap;
+  }
+  .nav-logo-icon {
+    width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .nav-logo-text { font-size: 16px; }
+  .nav-logo-beta {
+    font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.2);
+    padding: 2px 6px; border-radius: 4px; color: rgba(255,255,255,0.8);
+  }
+  .nav-links { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .nav-link {
+    display: flex; align-items: center; gap: 6px;
+    color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 500;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    border: none; background: none;
+  }
+  .nav-link:hover { background: rgba(255,255,255,0.12); color: white; }
+  .nav-link.active { background: rgba(255,255,255,0.15); color: white; }
+  .nav-badge {
+    background: var(--orange); color: white; font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 10px; min-width: 24px; text-align: center;
+  }
+
+  /* LAYOUT */
+  .page { display: flex; height: calc(100vh - 54px); overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: white; border-right: 1px solid var(--gray-200);
+    display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+  }
+  .sb-top {
+    padding: 16px 18px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .sb-header-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--gray-400); text-transform: uppercase; }
+  .collapse-btn {
+    width: 30px; height: 30px; background: var(--navy); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 12px; cursor: pointer; border: none; font-weight: 700;
+  }
+
+  .sb-section { padding: 16px 18px; border-bottom: 1px solid var(--gray-200); }
+  .sb-section-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray-400); margin-bottom: 12px; }
+
+  /* STAT CARDS */
+  .stat-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card {
+    border: 1px solid var(--gray-200); border-radius: 8px; padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-card-val { font-size: 26px; font-weight: 800; line-height: 1; }
+  .stat-card-lbl { font-size: 10px; color: var(--gray-400); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .val-navy { color: var(--navy); }
+  .val-green { color: var(--green); }
+  .val-orange { color: var(--orange); }
+  .val-default { color: var(--gray-900); }
+
+  /* RANKED LIST */
+  .rank-list { display: flex; flex-direction: column; gap: 0; }
+  .rank-row {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+    border-radius: 6px; cursor: pointer; transition: background 0.1s;
+  }
+  .rank-row:hover, .rank-row.active { background: var(--gray-50); }
+  .rank-num { font-size: 12px; color: var(--gray-400); width: 14px; flex-shrink: 0; }
+  .rank-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--gray-900); }
+  .rank-bar-wrap { width: 60px; height: 3px; background: var(--gray-200); border-radius: 2px; }
+  .rank-bar { height: 100%; border-radius: 2px; background: var(--orange); }
+  .rank-val { font-size: 13px; font-weight: 700; color: var(--gray-900); width: 36px; text-align: right; }
+  .rank-arrow { font-size: 11px; color: var(--gray-400); }
+  .view-all { font-size: 12px; font-weight: 700; color: var(--orange); margin-top: 10px; cursor: pointer; display: inline-block; }
+
+  /* ZONE CATEGORIES */
+  .cat-list { display: flex; flex-direction: column; gap: 0; }
+  .cat-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border-radius: 6px; cursor: pointer; transition: background 0.1s;
+  }
+  .cat-row:hover { background: var(--gray-50); }
+  .cat-num { font-size: 11px; color: var(--gray-400); width: 14px; }
+  .cat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .cat-name { flex: 1; font-size: 13px; color: var(--gray-700); }
+  .cat-val { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+  .cat-arr { font-size: 11px; color: var(--gray-400); }
+
+  /* SEARCH BAR in sidebar */
+  .sb-search { position: relative; margin-bottom: 12px; }
+  .sb-search input {
+    width: 100%; height: 36px; border: 1.5px solid var(--gray-200); border-radius: 8px;
+    padding: 0 12px 0 34px; font-size: 13px; outline: none; background: var(--gray-50);
+    transition: border-color 0.15s; color: var(--gray-900);
+  }
+  .sb-search input:focus { border-color: var(--navy2); background: white; }
+  .sb-search input::placeholder { color: var(--gray-400); }
+  .sb-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 13px; pointer-events: none; }
+
+  /* MAIN */
+  .main-area { flex: 1; display: flex; flex-direction: column; background: var(--gray-50); min-width: 0; }
+
+  .main-header {
+    background: white; border-bottom: 1px solid var(--gray-200);
+    padding: 14px 28px; flex-shrink: 0;
+  }
+  .main-subtitle { font-size: 15px; color: var(--gray-700); text-align: center; font-weight: 400; margin-bottom: 10px; }
+  .main-subtitle strong { font-weight: 700; color: var(--gray-900); }
+
+  /* Legend bar */
+  .legend-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .legend-pill {
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--gray-200); border-radius: 20px;
+    padding: 5px 14px; background: white; font-size: 12px; color: var(--gray-700);
+  }
+  .potency-strip { display: flex; gap: 2.5px; align-items: center; }
+  .pd { width: 9px; height: 9px; border-radius: 50%; }
+  .freq-pill {
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--gray-200); border-radius: 20px;
+    padding: 5px 14px; background: white; font-size: 12px; color: var(--gray-700);
+  }
+
+  /* COURT */
+  .court-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 28px; min-height: 0; }
+  .court-svg { max-height: 100%; width: 100%; max-width: 600px; }
+
+  /* CHIPS */
+  .chip-row { display: flex; justify-content: center; gap: 6px; padding: 10px 0 4px; flex-shrink: 0; }
+  .chip {
+    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1.5px solid var(--gray-200); background: white; cursor: pointer;
+    color: var(--gray-700); transition: all 0.15s;
+  }
+  .chip.active { background: var(--navy); border-color: var(--navy); color: white; }
+  .chip:hover:not(.active) { border-color: var(--gray-400); }
+
+  /* DROPDOWN */
+  .drop-menu {
+    position: absolute; top: 40px; left: 0; right: 0; background: white;
+    border: 1.5px solid var(--gray-200); border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.1); z-index: 200; display: none; overflow: hidden;
+  }
+  .drop-menu.show { display: block; }
+  .drop-item { padding: 9px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.1s; font-size: 13px; }
+  .drop-item:hover { background: var(--gray-50); }
+  .drop-av { width: 28px; height: 28px; border-radius: 50%; background: rgba(30,45,125,0.1); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--navy); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🏀</div>
+    <span class="nav-logo-text">WNBA Shot Tracker</span>
+    <span class="nav-logo-beta">2026 Season</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active">🗺 Court</button>
+    <button class="nav-link">📋 Players <span class="nav-badge">247</span></button>
+    <button class="nav-link">ℹ About</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="sb-top">
+      <span class="sb-header-label">Dashboard</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;font-weight:700;color:#1a8a4a;background:#e6f4ec;padding:3px 8px;border-radius:10px;letter-spacing:0.04em;">● Updated Mondays</span>
+        <button class="collapse-btn">«</button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="sb-section">
+      <div class="sb-search" style="position:relative">
+        <span class="sb-search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search player..." autocomplete="off" onfocus="showDrop()" onblur="hideDrop()">
+        <div class="drop-menu" id="dropdown">
+          <div class="drop-item" onmousedown="pick('Caitlin Clark','Indiana Fever · G')">
+            <div class="drop-av">CC</div><div><div style="font-weight:700">Caitlin Clark</div><div style="color:#9aa3b8;font-size:11px">Indiana Fever · G</div></div>
+          </div>
+          <div class="drop-item" onmousedown="pick('A\'ja Wilson','Las Vegas Aces · F')">
+            <div class="drop-av">AW</div><div><div style="font-weight:700">A'ja Wilson</div><div style="color:#9aa3b8;font-size:11px">Las Vegas Aces · F</div></div>
+          </div>
+          <div class="drop-item" onmousedown="pick('Breanna Stewart','New York Liberty · F')">
+            <div class="drop-av">BS</div><div><div style="font-weight:700">Breanna Stewart</div><div style="color:#9aa3b8;font-size:11px">New York Liberty · F</div></div>
+          </div>
+          <div class="drop-item" onmousedown="pick('Sabrina Ionescu','New York Liberty · G')">
+            <div class="drop-av">SI</div><div><div style="font-weight:700">Sabrina Ionescu</div><div style="color:#9aa3b8;font-size:11px">New York Liberty · G</div></div>
+          </div>
+          <div class="drop-item" onmousedown="pick('Napheesa Collier','Minnesota Lynx · F')">
+            <div class="drop-av">NC</div><div><div style="font-weight:700">Napheesa Collier</div><div style="color:#9aa3b8;font-size:11px">Minnesota Lynx · F</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Season overview -->
+    <div class="sb-section">
+      <div class="sb-section-title">2026 Season Overview</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-card-val val-navy">22.4</div><div class="stat-card-lbl">PPG</div></div>
+        <div class="stat-card"><div class="stat-card-val val-green">46.3</div><div class="stat-card-lbl">FG%</div></div>
+        <div class="stat-card"><div class="stat-card-val val-default">41.2</div><div class="stat-card-lbl">3P%</div></div>
+        <div class="stat-card"><div class="stat-card-val val-orange">8.1</div><div class="stat-card-lbl">AST/G</div></div>
+      </div>
+    </div>
+
+    <!-- Top shooters -->
+    <div class="sb-section">
+      <div class="sb-section-title">Top 3P% Leaders · 2026</div>
+      <div class="rank-list">
+        <div class="rank-row active">
+          <span class="rank-num">1</span>
+          <span class="rank-name">Caitlin Clark</span>
+          <div class="rank-bar-wrap"><div class="rank-bar" style="width:100%"></div></div>
+          <span class="rank-val">41.2</span>
+        </div>
+        <div class="rank-row">
+          <span class="rank-num">2</span>
+          <span class="rank-name">S. Ionescu</span>
+          <div class="rank-bar-wrap"><div class="rank-bar" style="width:96%"></div></div>
+          <span class="rank-val">40.5</span>
+        </div>
+        <div class="rank-row">
+          <span class="rank-num">3</span>
+          <span class="rank-name">B. Stewart</span>
+          <div class="rank-bar-wrap"><div class="rank-bar" style="width:92%"></div></div>
+          <span class="rank-val">39.8</span>
+        </div>
+        <div class="rank-row">
+          <span class="rank-num">4</span>
+          <span class="rank-name">N. Collier</span>
+          <div class="rank-bar-wrap"><div class="rank-bar" style="width:86%"></div></div>
+          <span class="rank-val">38.2</span>
+        </div>
+        <div class="rank-row">
+          <span class="rank-num">5</span>
+          <span class="rank-name">A'ja Wilson</span>
+          <div class="rank-bar-wrap"><div class="rank-bar" style="width:80%"></div></div>
+          <span class="rank-val">36.9</span>
+        </div>
+      </div>
+      <span class="view-all">View all players →</span>
+    </div>
+
+    <!-- Hot zones -->
+    <div class="sb-section">
+      <div class="sb-section-title">Zones by Efficiency</div>
+      <div class="cat-list">
+        <div class="cat-row">
+          <span class="cat-num">1</span>
+          <div class="cat-dot" style="background:#c0392b"></div>
+          <span class="cat-name">Paint</span>
+          <span class="cat-val">68%</span>
+          <span class="cat-arr">›</span>
+        </div>
+        <div class="cat-row">
+          <span class="cat-num">2</span>
+          <div class="cat-dot" style="background:#e8470a"></div>
+          <span class="cat-name">Top of Key 3</span>
+          <span class="cat-val">44%</span>
+          <span class="cat-arr">›</span>
+        </div>
+        <div class="cat-row">
+          <span class="cat-num">3</span>
+          <div class="cat-dot" style="background:#f77f00"></div>
+          <span class="cat-name">Corner 3</span>
+          <span class="cat-val">43%</span>
+          <span class="cat-arr">›</span>
+        </div>
+        <div class="cat-row">
+          <span class="cat-num">4</span>
+          <div class="cat-dot" style="background:#f8b500"></div>
+          <span class="cat-name">Wing 3</span>
+          <span class="cat-val">39%</span>
+          <span class="cat-arr">›</span>
+        </div>
+        <div class="cat-row">
+          <span class="cat-num">5</span>
+          <div class="cat-dot" style="background:#4cc9f0"></div>
+          <span class="cat-name">Mid-Range</span>
+          <span class="cat-val">33%</span>
+          <span class="cat-arr">›</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-area">
+
+    <div class="main-header">
+      <div class="main-subtitle">Shot zones for <strong>Caitlin Clark · Indiana Fever</strong> — 2026 WNBA Season</div>
+      <div class="legend-row">
+        <div class="legend-pill">
+          <span>Cold</span>
+          <div class="potency-strip">
+            <div class="pd" style="background:#3a86ff"></div>
+            <div class="pd" style="background:#4895ef"></div>
+            <div class="pd" style="background:#4cc9f0"></div>
+            <div class="pd" style="background:#72efdd"></div>
+            <div class="pd" style="background:#c5e77a"></div>
+            <div class="pd" style="background:#f8b500"></div>
+            <div class="pd" style="background:#f4a261"></div>
+            <div class="pd" style="background:#f77f00"></div>
+            <div class="pd" style="background:#e63946"></div>
+            <div class="pd" style="background:#c0392b"></div>
+          </div>
+          <span>Hot</span>
+        </div>
+        <div class="freq-pill">
+          <span>Frequency</span>
+          <svg width="68" height="14"><circle cx="7" cy="7" r="3.5" fill="#9aa3b8"/><circle cx="20" cy="7" r="5" fill="#9aa3b8"/><circle cx="36" cy="7" r="6.5" fill="#9aa3b8"/><circle cx="55" cy="7" r="8" fill="#9aa3b8"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="chip-row">
+      <div class="chip active" onclick="setMode(this)">All Zones</div>
+      <div class="chip" onclick="setMode(this)">3-Pointers</div>
+      <div class="chip" onclick="setMode(this)">Paint</div>
+      <div class="chip" onclick="setMode(this)">Mid-Range</div>
+      <div class="chip" onclick="setMode(this)">Hot Only</div>
+    </div>
+
+    <div class="court-wrap">
+      <svg viewBox="0 0 500 460" class="court-svg">
+        <defs>
+          <filter id="g1"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="g2"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- Court surface -->
+        <rect width="500" height="460" fill="#f0f2f6"/>
+        <rect x="15" y="10" width="470" height="440" fill="#fdf6e3" stroke="#c4a055" stroke-width="1.5" rx="2"/>
+
+        <!-- Paint -->
+        <rect x="190" y="248" width="120" height="192" fill="#f5ead0" stroke="#c4a055" stroke-width="1.5"/>
+        <line x1="214" y1="248" x2="214" y2="440" stroke="#c4a055" stroke-width="1" opacity="0.5"/>
+        <line x1="286" y1="248" x2="286" y2="440" stroke="#c4a055" stroke-width="1" opacity="0.5"/>
+
+        <!-- FT line + circle -->
+        <line x1="190" y1="248" x2="310" y2="248" stroke="#c4a055" stroke-width="1.5"/>
+        <path d="M 190 248 A 60 60 0 0 1 310 248" fill="none" stroke="#c4a055" stroke-width="1.5"/>
+        <path d="M 190 248 A 60 60 0 0 0 310 248" fill="none" stroke="#c4a055" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+        <!-- Basket -->
+        <line x1="230" y1="400" x2="270" y2="400" stroke="#8b6914" stroke-width="2.5"/>
+        <circle cx="250" cy="412" r="9" fill="none" stroke="#8b6914" stroke-width="2"/>
+        <path d="M 238 412 A 12 12 0 0 1 262 412" fill="none" stroke="#8b6914" stroke-width="1.5"/>
+
+        <!-- 3pt arc -->
+        <line x1="30" y1="440" x2="30" y2="391" stroke="#c4a055" stroke-width="1.5"/>
+        <line x1="470" y1="440" x2="470" y2="391" stroke="#c4a055" stroke-width="1.5"/>
+        <path d="M 30 391 A 221 221 0 0 1 470 391" fill="none" stroke="#c4a055" stroke-width="1.5"/>
+
+        <!-- Zone labels -->
+        <text x="250" y="136" text-anchor="middle" fill="#c4a055" font-size="8.5" font-family="sans-serif" font-weight="700" letter-spacing="0.1em" opacity="0.7">TOP OF KEY</text>
+        <text x="70"  y="196" text-anchor="middle" fill="#c4a055" font-size="8"   font-family="sans-serif" font-weight="700" letter-spacing="0.08em" opacity="0.7">LEFT WING</text>
+        <text x="430" y="196" text-anchor="middle" fill="#c4a055" font-size="8"   font-family="sans-serif" font-weight="700" letter-spacing="0.08em" opacity="0.7">RIGHT WING</text>
+        <text x="125" y="320" text-anchor="middle" fill="#c4a055" font-size="7.5" font-family="sans-serif" letter-spacing="0.06em" opacity="0.7">MID-RANGE</text>
+        <text x="375" y="320" text-anchor="middle" fill="#c4a055" font-size="7.5" font-family="sans-serif" letter-spacing="0.06em" opacity="0.7">MID-RANGE</text>
+        <text x="250" y="348" text-anchor="middle" fill="#c4a055" font-size="7.5" font-family="sans-serif" letter-spacing="0.06em" opacity="0.7">PAINT</text>
+
+        <!-- BUBBLES -->
+        <!-- Paint — hot, large -->
+        <circle cx="250" cy="393" r="20" fill="#c0392b" opacity="0.82" filter="url(#g1)"/>
+        <circle cx="232" cy="375" r="15" fill="#c0392b" opacity="0.78" filter="url(#g1)"/>
+        <circle cx="268" cy="375" r="14" fill="#c0392b" opacity="0.78" filter="url(#g1)"/>
+        <circle cx="250" cy="355" r="13" fill="#e8470a" opacity="0.78" filter="url(#g2)"/>
+        <circle cx="218" cy="357" r="10" fill="#e8470a" opacity="0.75"/>
+        <circle cx="282" cy="357" r="11" fill="#e8470a" opacity="0.75"/>
+        <circle cx="222" cy="338" r="9"  fill="#f8b500" opacity="0.78"/>
+        <circle cx="278" cy="338" r="10" fill="#f8b500" opacity="0.78"/>
+        <circle cx="250" cy="325" r="10" fill="#f8b500" opacity="0.75"/>
+        <circle cx="210" cy="322" r="7"  fill="#4cc9f0" opacity="0.72"/>
+        <circle cx="290" cy="322" r="7"  fill="#4cc9f0" opacity="0.72"/>
+        <circle cx="250" cy="305" r="8"  fill="#f8b500" opacity="0.74"/>
+
+        <!-- Corner 3s -->
+        <circle cx="40"  cy="420" r="10" fill="#e8470a" opacity="0.82" filter="url(#g2)"/>
+        <circle cx="40"  cy="405" r="8"  fill="#f8b500" opacity="0.78"/>
+        <circle cx="460" cy="420" r="9"  fill="#f8b500" opacity="0.80"/>
+        <circle cx="460" cy="407" r="7"  fill="#e8470a" opacity="0.76"/>
+
+        <!-- Left wing -->
+        <circle cx="60"  cy="375" r="8"  fill="#4cc9f0" opacity="0.72"/>
+        <circle cx="70"  cy="350" r="9"  fill="#f8b500" opacity="0.76"/>
+        <circle cx="82"  cy="318" r="11" fill="#f8b500" opacity="0.78"/>
+        <circle cx="96"  cy="288" r="10" fill="#e8470a" opacity="0.80" filter="url(#g2)"/>
+        <circle cx="114" cy="262" r="9"  fill="#f8b500" opacity="0.76"/>
+        <circle cx="138" cy="238" r="11" fill="#f8b500" opacity="0.78"/>
+        <circle cx="165" cy="218" r="12" fill="#e8470a" opacity="0.80" filter="url(#g2)"/>
+
+        <!-- Top of key — Caitlin's signature -->
+        <circle cx="196" cy="208" r="12" fill="#e8470a" opacity="0.80" filter="url(#g2)"/>
+        <circle cx="222" cy="198" r="13" fill="#c0392b" opacity="0.82" filter="url(#g1)"/>
+        <circle cx="250" cy="194" r="16" fill="#c0392b" opacity="0.85" filter="url(#g1)"/>
+        <circle cx="278" cy="198" r="13" fill="#c0392b" opacity="0.82" filter="url(#g1)"/>
+        <circle cx="304" cy="208" r="12" fill="#e8470a" opacity="0.80" filter="url(#g2)"/>
+        <circle cx="250" cy="175" r="9"  fill="#f8b500" opacity="0.74"/>
+        <circle cx="222" cy="180" r="7"  fill="#f8b500" opacity="0.70"/>
+        <circle cx="278" cy="180" r="8"  fill="#f8b500" opacity="0.72"/>
+
+        <!-- Right wing -->
+        <circle cx="335" cy="218" r="11" fill="#f8b500" opacity="0.78"/>
+        <circle cx="362" cy="238" r="10" fill="#e8470a" opacity="0.78"/>
+        <circle cx="386" cy="262" r="10" fill="#f8b500" opacity="0.76"/>
+        <circle cx="404" cy="288" r="11" fill="#e8470a" opacity="0.80" filter="url(#g2)"/>
+        <circle cx="418" cy="318" r="10" fill="#f8b500" opacity="0.76"/>
+        <circle cx="430" cy="350" r="8"  fill="#4cc9f0" opacity="0.70"/>
+        <circle cx="440" cy="375" r="8"  fill="#4cc9f0" opacity="0.68"/>
+
+        <!-- Mid-range — cold -->
+        <circle cx="162" cy="295" r="7"  fill="#3a86ff" opacity="0.68"/>
+        <circle cx="174" cy="270" r="6"  fill="#3a86ff" opacity="0.65"/>
+        <circle cx="200" cy="258" r="7"  fill="#4cc9f0" opacity="0.70"/>
+        <circle cx="300" cy="258" r="6"  fill="#4cc9f0" opacity="0.65"/>
+        <circle cx="330" cy="272" r="7"  fill="#3a86ff" opacity="0.66"/>
+        <circle cx="340" cy="296" r="6"  fill="#3a86ff" opacity="0.65"/>
+
+        <!-- Deep 3s -->
+        <circle cx="140" cy="196" r="6"  fill="#3a86ff" opacity="0.62"/>
+        <circle cx="360" cy="196" r="6"  fill="#3a86ff" opacity="0.60"/>
+        <circle cx="185" cy="168" r="5"  fill="#3a86ff" opacity="0.55"/>
+        <circle cx="315" cy="168" r="5"  fill="#3a86ff" opacity="0.55"/>
+        <circle cx="250" cy="152" r="6"  fill="#4cc9f0" opacity="0.58"/>
+      </svg>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function showDrop() { document.getElementById('dropdown').classList.add('show'); }
+  function hideDrop() { setTimeout(() => document.getElementById('dropdown').classList.remove('show'), 150); }
+  function pick(name, team) {
+    document.getElementById('searchInput').value = name;
+    document.querySelectorAll('.rank-row').forEach(r => r.classList.remove('active'));
+  }
+  function setMode(el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
