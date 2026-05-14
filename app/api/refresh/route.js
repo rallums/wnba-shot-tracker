@@ -13,7 +13,11 @@ export async function POST(request) {
   }
 
   try {
-    const { allZones, leaders, players, shotsByPlayer } = await request.json()
+    const { allZones, leaders, players, shotsByPlayer, schedule } = await request.json()
+
+    if (schedule) {
+      await kv.set('schedule:today:2026', schedule, { ex: 60 * 60 * 12 })
+    }
 
     if (players?.length) {
       await kv.set('players:2026', players, { ex: TTL })

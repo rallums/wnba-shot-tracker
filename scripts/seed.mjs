@@ -19,12 +19,28 @@ const HEADERS = {
 
 const ZONE_PREFIXES = ['RA', 'ITP', 'MR', 'LC3', 'RC3', 'AB3', 'BC', 'C3']
 
-async function fetchWNBA(endpoint, params) {
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+async function fetchWNBA(endpoint, params, retries = 3) {
   const url = new URL(`${BASE}/${endpoint}`)
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
-  const res = await fetch(url.toString(), { headers: HEADERS })
-  if (!res.ok) throw new Error(`${endpoint} returned ${res.status}`)
-  return res.json()
+  for (let i = 0; i < retries; i++) {
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 12000)
+      const res = await fetch(url.toString(), { headers: HEADERS, signal: ctrl.signal })
+      clearTimeout(timer)
+      if (res.ok) return res.json()
+      if (res.status === 429 || res.status >= 500) {
+        await sleep(2000 * (i + 1))
+        continue
+      }
+      throw new Error(`${endpoint} returned ${res.status}`)
+    } catch (e) {
+      if (i === retries - 1) throw e
+      await sleep(2000 * (i + 1))
+    }
+  }
 }
 
 console.log('Fetching zone shooting data...')
@@ -78,8 +94,9 @@ const players = allZones.map(r => ({
 console.log('Fetching shot charts per player...')
 const shotsByPlayer = {}
 const playerIds = allZones.map(p => p.PLAYER_ID)
-const BATCH = 4
+const BATCH = 2
 for (let i = 0; i < playerIds.length; i += BATCH) {
+  if (i > 0) await sleep(600)
   const batch = playerIds.slice(i, i + BATCH)
   const results = await Promise.all(batch.map(async pid => {
     try {
@@ -105,11 +122,36 @@ for (let i = 0; i < playerIds.length; i += BATCH) {
 }
 console.log('')
 
+// Today's schedule
+console.log('Fetching today schedule...')
+let schedule = []
+try {
+  const today = new Date().toISOString().slice(0, 10)
+  const sb = await fetchWNBA('scoreboardv3', { LeagueID: '10', GameDate: today })
+  const games = sb.scoreboard?.games || []
+  schedule = games.map(g => {
+    const awayAbbr = g.awayTeam?.teamTricode || g.awayTeam?.teamName || '—'
+    const homeAbbr = g.homeTeam?.teamTricode || g.homeTeam?.teamName || '—'
+    const status = g.gameStatus === 2 ? 'live' : g.gameStatus === 3 ? 'final' : 'upcoming'
+    const broadcasters = g.broadcasters?.nationalBroadcasters?.map(b => b.broadcasterDisplay).join(', ')
+      || g.broadcasters?.homeTvBroadcasters?.map(b => b.broadcasterDisplay).join(', ')
+      || 'WNBA League Pass'
+    return {
+      away: awayAbbr, home: homeAbbr,
+      time: g.gameStatusText?.trim() || 'TBD',
+      channel: broadcasters, status,
+    }
+  })
+  console.log(`  Got ${schedule.length} games`)
+} catch (e) {
+  console.log(`  Schedule fetch failed: ${e.message} (continuing)`)
+}
+
 console.log('Posting to Vercel...')
 const res = await fetch(`${SITE_URL}/api/refresh`, {
   method: 'POST',
   headers: { 'Authorization': `Bearer ${CRON_SECRET}`, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ allZones, leaders, players, shotsByPlayer }),
+  body: JSON.stringify({ allZones, leaders, players, shotsByPlayer, schedule }),
 })
 const result = await res.json()
 console.log('Done:', result)

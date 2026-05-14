@@ -235,7 +235,7 @@ export default function ShotTracker() {
   )
 
   return (
-    <div className="flex h-[calc(100vh-54px)] bg-white overflow-hidden">
+    <div className="flex h-[calc(100vh-86px)] bg-white overflow-hidden">
 
       {/* Desktop sidebar */}
       <div className="hidden md:block w-[300px] flex-shrink-0">{Sidebar}</div>

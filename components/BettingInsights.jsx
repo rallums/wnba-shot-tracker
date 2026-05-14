@@ -4,7 +4,7 @@ export default function BettingInsights({ stats, zones }) {
   if (!stats) {
     return (
       <div className="p-4 border-t border-gray-100">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">📊 Betting Leans</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">📊 Parlay Analysis</div>
         <div className="text-[11px] text-gray-400 italic">Select a player to see prop leans</div>
       </div>
     )
@@ -56,10 +56,11 @@ export default function BettingInsights({ stats, zones }) {
   return (
     <div className="p-4 border-t border-gray-100">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">📊 Betting Leans</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">📊 Parlay Analysis</span>
         {lowSample && (
-          <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-            ⚠ {gp}GP
+          <span title="Small sample — only a few games played; stats may be unreliable"
+            className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded cursor-help">
+            ⚠ Only {gp} games played
           </span>
         )}
       </div>
