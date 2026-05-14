@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import ShotTracker from '@/components/ShotTracker'
 import { getAllPlayers } from '@/lib/wnba-api'
 
