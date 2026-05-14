@@ -4,7 +4,8 @@
 const BASE = 'https://stats.wnba.com/stats'
 const SEASON = '2026'
 const SITE_URL = process.env.SITE_URL || 'https://wnba-shot-tracker-947a.vercel.app'
-const CRON_SECRET = process.env.CRON_SECRET || 'wnba2026secret'
+if (!process.env.CRON_SECRET) throw new Error('CRON_SECRET env var required — run: CRON_SECRET=yourSecret node scripts/seed.mjs')
+const CRON_SECRET = process.env.CRON_SECRET
 
 const HEADERS = {
   'Accept': 'application/json, text/plain, */*',

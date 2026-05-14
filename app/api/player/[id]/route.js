@@ -4,6 +4,9 @@ import { aggregateShots } from '@/lib/zones'
 
 export async function GET(request, { params }) {
   const { id } = params
+  if (!/^\d+$/.test(id)) {
+    return Response.json({ error: 'Invalid ID' }, { status: 400 })
+  }
   const cacheKey = `player:${id}:shots:2026`
 
   // Serve from cache if available

@@ -1,10 +1,14 @@
 import { kv } from '@vercel/kv'
+import { timingSafeEqual } from 'crypto'
 
 const TTL = 60 * 60 * 24 * 8 // 8 days
 
 export async function POST(request) {
-  const secret = request.headers.get('authorization')?.replace('Bearer ', '')
-  if (secret !== process.env.CRON_SECRET) {
+  const secret = request.headers.get('authorization')?.replace('Bearer ', '') ?? ''
+  const expected = process.env.CRON_SECRET ?? ''
+  const valid = secret.length === expected.length &&
+    timingSafeEqual(Buffer.from(secret), Buffer.from(expected))
+  if (!valid) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
