@@ -23,7 +23,12 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
   const lineColor = '#c4a055'
   const bgColor   = '#fdf6e3'
 
-  const mapped = shots.map(mapShot).filter(s => s.sx >= 15 && s.sx <= 485 && s.sy >= 10 && s.sy <= 450)
+  const filteredShots = shots.filter(s => {
+    if (filter === '3pt')   return Math.sqrt(s.x * s.x + s.y * s.y) > 200 || (Math.abs(s.x) >= 220 && s.y < 90)
+    if (filter === 'paint') return Math.abs(s.x) <= 80 && s.y >= -10 && s.y <= 190
+    return true
+  })
+  const mapped = filteredShots.map(mapShot).filter(s => s.sx >= 15 && s.sx <= 485 && s.sy >= 10 && s.sy <= 450)
 
   return (
     <div className="relative w-full max-w-[620px] select-none">
@@ -127,6 +132,13 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
             <line x1={s.sx - 3} y1={s.sy + 3} x2={s.sx + 3} y2={s.sy - 3} stroke="#b91c1c" strokeWidth="1.5"/>
           </g>
         ))}
+
+        {view === 'shots' && shots.length === 0 && (
+          <text x="250" y="220" textAnchor="middle" fill={lineColor}
+            fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.6">
+            No shot data — run seed script first
+          </text>
+        )}
       </svg>
 
       {view === 'zones' && hovered && (() => {
@@ -145,8 +157,8 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
 
       {view === 'shots' && (
         <div className="absolute top-2 right-2 bg-white/90 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[10px] flex gap-3 shadow">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-600"/>Made {shots.filter(s => s.m).length}</span>
-          <span className="flex items-center gap-1"><span className="text-red-700 font-bold">×</span>Missed {shots.filter(s => !s.m).length}</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-600"/>Made {filteredShots.filter(s => s.m).length}</span>
+          <span className="flex items-center gap-1"><span className="text-red-700 font-bold">×</span>Missed {filteredShots.filter(s => !s.m).length}</span>
         </div>
       )}
     </div>
