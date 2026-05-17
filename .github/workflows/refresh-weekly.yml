@@ -1,15 +1,15 @@
-name: Monday Data Refresh
+name: Weekly Shot Chart Refresh
 
 on:
   schedule:
-    - cron: '0 10 * * 1'
+    - cron: '0 10 * * 1'  # Monday 10am UTC (6am ET)
   workflow_dispatch:
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch WNBA data and push to KV
+      - name: Fetch all data including per-player shot charts and push to KV
         run: |
           python3 - <<'EOF'
           import urllib.request, urllib.parse, json, os, time
@@ -81,7 +81,6 @@ jobs:
           leaders = [dict(zip(h, r)) for r in rs['rowSet']]
           print(f'Got {len(leaders)} leaders')
 
-          # Players list (derived from zone data)
           players = [{'id': r['PLAYER_ID'], 'name': r['PLAYER_NAME'],
                       'team': r['TEAM_ABBREVIATION'], 'abbr': r['TEAM_ABBREVIATION']}
                      for r in all_zones]
@@ -144,7 +143,7 @@ jobs:
           except Exception as e:
             print(f'Schedule fetch failed: {e} (continuing)')
 
-          # POST to Vercel
+          # POST to Vercel — full payload including shot charts
           site_url = os.environ['SITE_URL']
           cron_secret = os.environ['CRON_SECRET']
           payload = json.dumps({
