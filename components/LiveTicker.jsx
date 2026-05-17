@@ -2,24 +2,16 @@
 
 import { useEffect, useState } from 'react'
 
-// Status: 'live' (green blink), 'upcoming', 'final'
-const MOCK = [
-  { home: 'IND', away: 'NYL', time: '7:00 PM ET', channel: 'ABC',        status: 'live' },
-  { home: 'LVA', away: 'PHX', time: '9:00 PM ET', channel: 'WNBA League Pass', status: 'upcoming' },
-  { home: 'CHI', away: 'CON', time: '7:30 PM ET', channel: 'WNBA App',   status: 'upcoming' },
-  { home: 'SEA', away: 'MIN', time: '10:00 PM ET', channel: 'Prime Video', status: 'upcoming' },
-  { home: 'ATL', away: 'WAS', time: '7:30 PM ET', channel: 'CBS Sports Network', status: 'final' },
-  { home: 'GSV', away: 'DAL', time: '10:00 PM ET', channel: 'NBA TV',    status: 'upcoming' },
-]
-
 export default function LiveTicker() {
-  const [games, setGames] = useState(MOCK)
+  const [games, setGames] = useState([])
 
   useEffect(() => {
     fetch('/api/schedule').then(r => r.json()).then(d => {
       if (d.games?.length) setGames(d.games)
     }).catch(() => {})
   }, [])
+
+  if (!games.length) return null
 
   // Duplicate the array for seamless scroll
   const loop = [...games, ...games]
