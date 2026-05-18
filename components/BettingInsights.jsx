@@ -3,9 +3,9 @@
 export default function BettingInsights({ stats, zones }) {
   if (!stats) {
     return (
-      <div className="p-4 border-t border-gray-100">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">📊 Parlay Analysis</div>
-        <div className="text-[11px] text-gray-400 italic">Select a player to see prop leans</div>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
+        <div className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: '#777' }}>📊 Parlay Analysis</div>
+        <div className="text-[11px] italic" style={{ color: '#777' }}>Select a player to see prop leans</div>
       </div>
     )
   }
@@ -54,40 +54,44 @@ export default function BettingInsights({ stats, zones }) {
   ]
 
   return (
-    <div className="p-4 border-t border-gray-100">
+    <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">📊 Parlay Analysis</span>
+        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: '#777' }}>📊 Parlay Analysis</span>
         {lowSample && (
           <span title="Small sample — only a few games played; stats may be unreliable"
-            className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded cursor-help">
-            ⚠ Only {gp} games played
+            className="text-[9px] font-bold px-1.5 py-0.5 rounded cursor-help"
+            style={{ color: '#f59e0b', background: '#f59e0b15' }}>
+            ⚠ {gp} games
           </span>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {props.map(p => {
-          const tagCls = p.lean === 'OVER'  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                       : p.lean === 'UNDER' ? 'bg-red-50 text-red-700 border-red-200'
-                       :                       'bg-gray-50 text-gray-400 border-gray-200'
+          const isOver = p.lean === 'OVER', isUnder = p.lean === 'UNDER'
           return (
-            <div key={p.name} className="bg-white border border-gray-200 rounded-lg p-2.5">
+            <div key={p.name} className="rounded-lg p-2.5"
+              style={{ background: '#161616', border: '1px solid #1e1e1e' }}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[12px] font-bold text-gray-900">{p.name}</span>
-                <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${tagCls}`}>
-                  {p.lean === 'OVER' ? '↑ OVER' : p.lean === 'UNDER' ? '↓ UNDER' : '— PASS'}
+                <span className="text-[11px] font-bold" style={{ color: '#bbb' }}>{p.name}</span>
+                <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
+                  style={{
+                    background: isOver ? '#22c55e15' : isUnder ? '#ef444415' : '#1e1e1e',
+                    color: isOver ? '#22c55e' : isUnder ? '#ef4444' : '#333'
+                  }}>
+                  {isOver ? '↑ OVER' : isUnder ? '↓ UNDER' : '— PASS'}
                 </span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-[11px] text-gray-500">Suggested {p.line}</span>
-                <span className="text-[12px] font-bold text-gray-900">{p.avg}<span className="text-[10px] text-gray-400 font-normal"> avg</span></span>
+                <span className="text-[10px]" style={{ color: '#bbb' }}>Line {p.line}</span>
+                <span className="text-[11px] font-black" style={{ color: '#f0f0f0' }}>{p.avg}<span className="text-[10px] font-normal" style={{ color: '#bbb' }}> avg</span></span>
               </div>
-              <div className="text-[10px] text-gray-400 mt-0.5">{p.reason}</div>
+              <div className="text-[10px] mt-0.5" style={{ color: '#777' }}>{p.reason}</div>
             </div>
           )
         })}
       </div>
-      <div className="text-[9px] text-gray-400 italic mt-3 leading-tight">
-        Educational only — based on season averages and zone efficiency. Not financial advice.
+      <div className="text-[9px] italic mt-3 leading-tight" style={{ color: '#2a2a2a' }}>
+        Educational only. Not financial advice.
       </div>
     </div>
   )

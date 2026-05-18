@@ -20,8 +20,8 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
     return true
   })
 
-  const lineColor = '#c4a055'
-  const bgColor   = '#fdf6e3'
+  const lineColor = '#F57B20'
+  const bgColor   = '#0a0a0a'
 
   const filteredShots = shots.filter(s => {
     if (filter === '3pt')   return Math.sqrt(s.x * s.x + s.y * s.y) > 200 || (Math.abs(s.x) >= 220 && s.y < 90)
@@ -44,29 +44,36 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
           </filter>
         </defs>
 
+        <defs>
+          <filter id="line-glow">
+            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
         {/* Court */}
-        <rect width="500" height="460" fill="#f0f2f6"/>
-        <rect x="15" y="10" width="470" height="440" fill={bgColor} stroke={lineColor} strokeWidth="1.5" rx="3"/>
+        <rect width="500" height="460" fill="#0d0d0d"/>
+        <rect x="15" y="10" width="470" height="440" fill={bgColor} stroke={lineColor} strokeWidth="1.5" rx="3" filter="url(#line-glow)"/>
 
         {/* Paint */}
-        <rect x="190" y="248" width="120" height="192" fill="#f5ead0" stroke={lineColor} strokeWidth="1.5"/>
-        <line x1="214" y1="248" x2="214" y2="440" stroke={lineColor} strokeWidth="0.8" opacity="0.5"/>
-        <line x1="286" y1="248" x2="286" y2="440" stroke={lineColor} strokeWidth="0.8" opacity="0.5"/>
+        <rect x="190" y="248" width="120" height="192" fill="#F57B2008" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
+        <line x1="214" y1="248" x2="214" y2="440" stroke={lineColor} strokeWidth="0.8" opacity="0.4"/>
+        <line x1="286" y1="248" x2="286" y2="440" stroke={lineColor} strokeWidth="0.8" opacity="0.4"/>
 
         {/* FT line */}
-        <line x1="190" y1="248" x2="310" y2="248" stroke={lineColor} strokeWidth="1.5"/>
-        <path d="M 190 248 A 60 60 0 0 1 310 248" fill="none" stroke={lineColor} strokeWidth="1.5"/>
-        <path d="M 190 248 A 60 60 0 0 0 310 248" fill="none" stroke={lineColor} strokeWidth="1.5" strokeDasharray="5,4"/>
+        <line x1="190" y1="248" x2="310" y2="248" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
+        <path d="M 190 248 A 60 60 0 0 1 310 248" fill="none" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
+        <path d="M 190 248 A 60 60 0 0 0 310 248" fill="none" stroke={lineColor} strokeWidth="1.5" strokeDasharray="5,4" opacity="0.5"/>
 
         {/* Basket */}
-        <line x1="230" y1="400" x2="270" y2="400" stroke="#8b6914" strokeWidth="2.5"/>
-        <circle cx="250" cy="412" r="9" fill="none" stroke="#8b6914" strokeWidth="2"/>
-        <path d="M 238 412 A 12 12 0 0 1 262 412" fill="none" stroke="#8b6914" strokeWidth="1.5"/>
+        <line x1="230" y1="400" x2="270" y2="400" stroke={lineColor} strokeWidth="2.5" filter="url(#line-glow)"/>
+        <circle cx="250" cy="412" r="9" fill="none" stroke={lineColor} strokeWidth="2" filter="url(#line-glow)"/>
+        <path d="M 238 412 A 12 12 0 0 1 262 412" fill="none" stroke={lineColor} strokeWidth="1.5" opacity="0.6"/>
 
         {/* 3pt arc */}
-        <line x1="30" y1="440" x2="30" y2="391" stroke={lineColor} strokeWidth="1.5"/>
-        <line x1="470" y1="440" x2="470" y2="391" stroke={lineColor} strokeWidth="1.5"/>
-        <path d="M 30 391 A 221 221 0 0 1 470 391" fill="none" stroke={lineColor} strokeWidth="1.5"/>
+        <line x1="30" y1="440" x2="30" y2="391" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
+        <line x1="470" y1="440" x2="470" y2="391" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
+        <path d="M 30 391 A 221 221 0 0 1 470 391" fill="none" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
 
         {view === 'zones' && (
           <>
@@ -79,7 +86,7 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
               { x: 250, y: 348, label: 'PAINT'      },
             ].map(({ x, y, label }) => (
               <text key={label+x} x={x} y={y} textAnchor="middle"
-                fill={lineColor} fontSize="7.5"
+                fill="#F57B2066" fontSize="7.5"
                 fontFamily="system-ui,sans-serif" fontWeight="700"
                 letterSpacing="0.12em" opacity="0.7">
                 {label}
@@ -88,9 +95,10 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
 
             {filteredZones.map(zone => {
               const isHot = zone.fgPct >= 0.50
-              const isMid = zone.fgPct >= 0.40
+              const isMid = zone.fgPct >= 0.38
               const pct   = Math.round(zone.fgPct * 100)
               const isHov = hovered === zone.id
+              const dotColor = isHot ? '#22c55e' : isMid ? '#F57B20' : '#ef4444'
 
               return (
                 <g key={zone.id}
@@ -100,12 +108,12 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
                   {isHov && (
                     <circle cx={zone.center.x} cy={zone.center.y}
                       r={zone.radius + 6} fill="none"
-                      stroke={zone.color} strokeWidth="1.5" opacity="0.4"/>
+                      stroke={dotColor} strokeWidth="1.5" opacity="0.4"/>
                   )}
                   <circle
                     cx={zone.center.x} cy={zone.center.y}
                     r={isHov ? zone.radius + 2 : zone.radius}
-                    fill={zone.color} opacity={isHov ? 0.95 : 0.82}
+                    fill={dotColor} opacity={isHov ? 0.95 : 0.82}
                     filter={isHot ? 'url(#glow-hot)' : isMid ? 'url(#glow-mid)' : undefined}
                     style={{ transition: 'r 0.15s, opacity 0.15s' }}
                   />
@@ -134,9 +142,9 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
         ))}
 
         {view === 'shots' && shots.length === 0 && (
-          <text x="250" y="220" textAnchor="middle" fill={lineColor}
-            fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.6">
-            No shot data — run seed script first
+          <text x="250" y="220" textAnchor="middle" fill="#555"
+            fontSize="11" fontFamily="system-ui,sans-serif">
+            Shot tracking not available for this player
           </text>
         )}
       </svg>
@@ -145,20 +153,22 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
         const z = filteredZones.find(x => x.id === hovered)
         if (!z) return null
         return (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-xl pointer-events-none z-10 whitespace-nowrap">
-            <div className="text-gray-900 font-bold text-sm">{z.label}</div>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-xl px-4 py-2.5 pointer-events-none z-10 whitespace-nowrap"
+            style={{ background: '#161616', border: '1px solid #F57B2040', boxShadow: '0 0 20px #F57B2020' }}>
+            <div className="text-sm font-bold" style={{ color: '#f0f0f0' }}>{z.label}</div>
             <div className="flex gap-4 mt-1">
               <span className="text-[12px] font-semibold" style={{ color: z.color }}>{Math.round(z.fgPct * 100)}% FG</span>
-              <span className="text-[12px] text-gray-500">{z.fga?.toFixed?.(1) ?? z.attempts} att/g</span>
+              <span className="text-[12px]" style={{ color: '#777' }}>{z.fga?.toFixed?.(1) ?? z.attempts} att/g</span>
             </div>
           </div>
         )
       })()}
 
       {view === 'shots' && (
-        <div className="absolute top-2 right-2 bg-white/90 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[10px] flex gap-3 shadow">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-600"/>Made {filteredShots.filter(s => s.m).length}</span>
-          <span className="flex items-center gap-1"><span className="text-red-700 font-bold">×</span>Missed {filteredShots.filter(s => !s.m).length}</span>
+        <div className="absolute top-2 right-2 rounded-lg px-2.5 py-1.5 text-[10px] flex gap-3"
+          style={{ background: '#161616', border: '1px solid #2a2a2a' }}>
+          <span className="flex items-center gap-1" style={{ color: '#bbb' }}><span className="w-2 h-2 rounded-full" style={{ background: '#16a34a' }}/>Made {filteredShots.filter(s => s.m).length}</span>
+          <span className="flex items-center gap-1" style={{ color: '#bbb' }}><span style={{ color: '#b91c1c', fontWeight: 'bold' }}>×</span>Missed {filteredShots.filter(s => !s.m).length}</span>
         </div>
       )}
     </div>
