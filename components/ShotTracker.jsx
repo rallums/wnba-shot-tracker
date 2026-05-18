@@ -4,18 +4,20 @@ import { useState, useEffect, useCallback } from 'react'
 import CourtChart from './CourtChart'
 import BettingInsights from './BettingInsights'
 
+const ORANGE = '#F57B20'
+
 const FALLBACK_ZONES = [
-  { id: 'paint',    label: 'Paint',       fga: 4.2, fgPct: 0.68, color: '#c0392b', radius: 13, center: { x: 250, y: 370 } },
-  { id: 'top_key',  label: 'Top of Key',  fga: 3.1, fgPct: 0.44, color: '#f77f00', radius: 10, center: { x: 250, y: 195 } },
-  { id: 'corner_l', label: 'Corner 3 L',  fga: 1.2, fgPct: 0.43, color: '#f77f00', radius: 7,  center: { x: 42,  y: 418 } },
-  { id: 'corner_r', label: 'Corner 3 R',  fga: 1.0, fgPct: 0.42, color: '#f8b500', radius: 6,  center: { x: 458, y: 418 } },
+  { id: 'paint',    label: 'Paint',       fga: 4.2, fgPct: 0.68, color: '#F57B20', radius: 13, center: { x: 250, y: 370 } },
+  { id: 'top_key',  label: 'Top of Key',  fga: 3.1, fgPct: 0.44, color: '#e05a00', radius: 10, center: { x: 250, y: 195 } },
+  { id: 'corner_l', label: 'Corner 3 L',  fga: 1.2, fgPct: 0.43, color: '#e05a00', radius: 7,  center: { x: 42,  y: 418 } },
+  { id: 'corner_r', label: 'Corner 3 R',  fga: 1.0, fgPct: 0.42, color: '#cc7a00', radius: 6,  center: { x: 458, y: 418 } },
 ]
 
 const DEFAULT_PLAYER = { id: '1628932', name: "A'ja Wilson", team: 'LVA', abbr: 'LVA' }
 const ZONE_ORDER = ['paint','top_key','corner_l','corner_r','wing_l','wing_r','mid_l','mid_r']
 const FILTERS = [['all','All Zones'],['3pt','3-Pointers'],['paint','Paint'],['hot','🔥 Hot']]
 
-function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelect, teams, label, placeholder }) {
+function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelect, teams, placeholder }) {
   const [show, setShow] = useState(false)
   const filtered = allPlayers
     .filter(p => team === 'all' || p.team === team)
@@ -24,36 +26,43 @@ function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelec
 
   return (
     <div className="space-y-2">
-      {label && <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</div>}
       {onTeamChange && (
         <select value={team} onChange={e => onTeamChange(e.target.value)}
-          className="w-full h-8 bg-gray-50 border border-gray-200 rounded-lg px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#FF6900]/60">
+          className="w-full h-8 rounded-lg px-2 text-xs font-semibold outline-none"
+          style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#888' }}>
           <option value="all">All teams</option>
           {teams.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       )}
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">⌕</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: '#444' }}>⌕</span>
         <input
-          className="w-full h-9 bg-gray-50 border border-gray-200 rounded-lg pl-8 pr-3 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#FF6900]/60 focus:bg-white"
+          className="w-full h-9 rounded-lg pl-8 pr-3 text-sm outline-none transition-all"
+          style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#f0f0f0' }}
           placeholder={placeholder || 'Search player...'}
           value={query}
           onChange={e => { setQuery(e.target.value); setShow(true) }}
-          onFocus={() => setShow(true)}
-          onBlur={() => setTimeout(() => setShow(false), 150)}
+          onFocus={e => { setShow(true); e.target.style.borderColor = ORANGE }}
+          onBlur={e => { setTimeout(() => setShow(false), 150); e.target.style.borderColor = '#2a2a2a' }}
         />
         {show && filtered.length > 0 && (
-          <div className="absolute top-10 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+          <div className="absolute top-10 left-0 right-0 rounded-xl overflow-hidden z-50"
+            style={{ background: '#161616', border: '1px solid #2a2a2a', boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
             {filtered.map(p => (
               <div key={p.id} onMouseDown={() => { onSelect(p); setShow(false) }}
-                className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-[10px] font-bold text-[#FF6900] flex-shrink-0">
+                className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors"
+                style={{ borderBottom: '1px solid #1e1e1e' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#1e1e1e'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0"
+                  style={{ background: '#1e1e1e', border: `1px solid ${ORANGE}30`, color: ORANGE }}>
                   {p.name.split(' ').map(n => n[0]).join('').slice(0,2)}
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">{p.name}</div>
-                  <div className="text-[11px] text-gray-400">{p.team}</div>
+                  <div className="text-sm font-bold" style={{ color: '#f0f0f0' }}>{p.name}</div>
+                  <div className="text-[11px]" style={{ color: '#444' }}>{p.team}</div>
                 </div>
+                <span className="ml-auto text-xs" style={{ color: '#333' }}>→</span>
               </div>
             ))}
           </div>
@@ -63,36 +72,11 @@ function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelec
   )
 }
 
-function PlayerCard({ player, stats, color = '#FF6900' }) {
+function StatCard({ val, label, color = ORANGE }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
-        style={{ background: `linear-gradient(135deg, ${color}, #c0392b)` }}>
-        {player.name.split(' ').map(n => n[0]).join('').slice(0,2)}
-      </div>
-      <div className="min-w-0">
-        <div className="text-gray-900 font-bold text-sm truncate">{player.name}</div>
-        <div className="text-gray-400 text-[11px]">{player.team} · 2026</div>
-      </div>
-    </div>
-  )
-}
-
-function MiniStats({ stats }) {
-  const cards = [
-    { val: stats?.PTS ?? '—', lbl: 'PPG', c: '#FF6900' },
-    { val: stats?.FG_PCT  != null ? (stats.FG_PCT  * 100).toFixed(1) : '—', lbl: 'FG%', c: '#16a34a' },
-    { val: stats?.FG3_PCT != null ? (stats.FG3_PCT * 100).toFixed(1) : '—', lbl: '3P%', c: '#7c3aed' },
-    { val: stats?.AST ?? '—', lbl: 'AST', c: '#2563eb' },
-  ]
-  return (
-    <div className="grid grid-cols-4 gap-1.5">
-      {cards.map(({ val, lbl, c }) => (
-        <div key={lbl} className="bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-center">
-          <div className="text-base font-extrabold leading-none" style={{ color: c }}>{val}</div>
-          <div className="text-[9px] text-gray-400 mt-0.5 uppercase font-semibold">{lbl}</div>
-        </div>
-      ))}
+    <div className="rounded-xl p-3 text-center" style={{ background: '#161616', border: '1px solid #1e1e1e', borderTop: `2px solid ${color}` }}>
+      <div className="text-xl font-black leading-none" style={{ color }}>{val}</div>
+      <div className="text-[9px] font-bold tracking-widest uppercase mt-1" style={{ color: '#444' }}>{label}</div>
     </div>
   )
 }
@@ -112,7 +96,6 @@ export default function ShotTracker() {
   const [allPlayers, setAllPlayers]   = useState([])
   const [drawerOpen, setDrawerOpen]   = useState(false)
 
-  // Compare mode
   const [compareOn, setCompareOn] = useState(false)
   const [playerB, setPlayerB]     = useState(null)
   const [zonesB, setZonesB]       = useState([])
@@ -155,46 +138,54 @@ export default function ShotTracker() {
   const sortedZones = [...zones].sort((a, b) => b.fgPct - a.fgPct)
 
   const Sidebar = (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200 overflow-y-auto">
-      <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Dashboard</span>
-        {lastUpdated && (
-          <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">● LIVE</span>
-        )}
-      </div>
-
-      <div className="p-4 border-b border-gray-100">
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#111', borderRight: '1px solid #1e1e1e' }}>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: '#333' }}>01 — Player</span>
+          {lastUpdated && <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ color: ORANGE, background: `${ORANGE}15`, border: `1px solid ${ORANGE}30` }}>● Live</span>}
+        </div>
         <PlayerSearch
           allPlayers={allPlayers} teams={teams}
           team={team} onTeamChange={setTeam}
           query={query} setQuery={setQuery}
           onSelect={loadPlayer}
-          label="Player"
         />
       </div>
 
-      <div className="px-4 py-3 border-b border-gray-100">
-        <PlayerCard player={player} stats={stats}/>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0"
+            style={{ background: `${ORANGE}15`, border: `1px solid ${ORANGE}40`, color: ORANGE }}>
+            {player.name.split(' ').map(n => n[0]).join('').slice(0,2)}
+          </div>
+          <div>
+            <div className="font-black text-sm leading-tight" style={{ color: '#f0f0f0' }}>{player.name}</div>
+            <div className="text-[11px] font-semibold mt-0.5" style={{ color: '#444' }}>{player.team} · 2026</div>
+          </div>
+        </div>
       </div>
 
-      {/* Stat cards */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Season Stats</div>
-        <MiniStats stats={stats}/>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#333' }}>02 — Season Stats</div>
+        <div className="grid grid-cols-4 gap-1.5">
+          <StatCard val={stats?.PTS ?? '—'} label="PPG" color={ORANGE}/>
+          <StatCard val={stats?.FG_PCT != null ? (stats.FG_PCT*100).toFixed(0)+'%' : '—'} label="FG%" color="#22c55e"/>
+          <StatCard val={stats?.FG3_PCT != null ? (stats.FG3_PCT*100).toFixed(0)+'%' : '—'} label="3P%" color="#a855f7"/>
+          <StatCard val={stats?.AST ?? '—'} label="AST" color="#3b82f6"/>
+        </div>
       </div>
 
-      {/* Best Zones */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Best Zones</div>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#333' }}>03 — Best Zones</div>
         <div className="space-y-1">
           {sortedZones.slice(0, 5).map((z, i) => (
-            <div key={z.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50">
-              <span className="text-[10px] text-gray-300 w-3 font-bold">{i+1}</span>
-              <span className="flex-1 text-[12px] font-semibold text-gray-700">{z.label}</span>
-              <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div key={z.id} className="flex items-center gap-2.5 py-1.5">
+              <span className="text-[9px] font-black w-3 text-right" style={{ color: '#2a2a2a' }}>0{i+1}</span>
+              <span className="flex-1 text-xs font-semibold" style={{ color: '#666' }}>{z.label}</span>
+              <div className="w-10 h-0.5 rounded-full overflow-hidden" style={{ background: '#1e1e1e' }}>
                 <div className="h-full rounded-full" style={{ width: `${z.fgPct * 100}%`, background: z.color }}/>
               </div>
-              <span className="text-[12px] font-bold w-8 text-right" style={{ color: z.color }}>
+              <span className="text-xs font-black w-8 text-right" style={{ color: z.color }}>
                 {Math.round(z.fgPct * 100)}%
               </span>
             </div>
@@ -204,9 +195,8 @@ export default function ShotTracker() {
 
       <BettingInsights stats={stats} zones={zones}/>
 
-      {/* All Zones */}
-      <div className="p-4">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">All Zones</div>
+      <div className="px-5 py-4">
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#333' }}>04 — All Zones</div>
         <div className="space-y-2">
           {ZONE_ORDER.map(id => {
             const z = zones.find(x => x.id === id)
@@ -215,15 +205,18 @@ export default function ShotTracker() {
             return (
               <div key={id} className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: z.color }}/>
-                <span className="flex-1 text-[11px] text-gray-600">{z.label}</span>
-                <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden">
+                <span className="flex-1 text-[11px]" style={{ color: '#555' }}>{z.label}</span>
+                <div className="w-10 h-0.5 rounded-full overflow-hidden" style={{ background: '#1e1e1e' }}>
                   <div className="h-full rounded-full" style={{ width: `${z.fgPct * 100}%`, background: z.color }}/>
                 </div>
-                <span className="text-[11px] font-bold w-7 text-right" style={{ color: z.color }}>
+                <span className="text-[11px] font-black w-7 text-right" style={{ color: z.color }}>
                   {Math.round(z.fgPct * 100)}%
                 </span>
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded w-7 text-center
-                  ${above ? 'bg-red-50 text-red-600' : below ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded w-7 text-center"
+                  style={{
+                    background: above ? `${ORANGE}15` : below ? '#3b82f615' : '#1e1e1e',
+                    color: above ? ORANGE : below ? '#3b82f6' : '#333'
+                  }}>
                   {above ? `+${Math.round((z.fgPct - 0.37)*100)}` : below ? `−${Math.round((0.37 - z.fgPct)*100)}` : 'AVG'}
                 </span>
               </div>
@@ -235,107 +228,118 @@ export default function ShotTracker() {
   )
 
   return (
-    <div className="flex h-[calc(100vh-86px)] bg-white overflow-hidden">
+    <div className="flex flex-1 overflow-hidden min-h-0" style={{ background: '#0d0d0d' }}>
 
-      {/* Desktop sidebar */}
-      <div className="hidden md:block w-[300px] flex-shrink-0">{Sidebar}</div>
+      <div className="hidden md:block w-[290px] flex-shrink-0">{Sidebar}</div>
 
-      {/* Mobile drawer */}
       {drawerOpen && (
         <>
-          <div onClick={() => setDrawerOpen(false)} className="md:hidden fixed inset-0 bg-black/40 z-40"/>
+          <div onClick={() => setDrawerOpen(false)} className="md:hidden fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.7)' }}/>
           <div className="md:hidden fixed left-0 top-0 h-full w-[85%] max-w-[320px] z-50 shadow-2xl">{Sidebar}</div>
         </>
       )}
 
-      {/* MAIN */}
-      <div className="flex-1 flex flex-col min-w-0 bg-gray-50">
-
-        {/* Top bar */}
-        <div className="bg-white border-b border-gray-200 px-3 md:px-4 py-3 flex-shrink-0 flex items-center gap-2">
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="px-4 py-3 flex-shrink-0 flex items-center gap-3" style={{ borderBottom: '1px solid #1e1e1e', background: '#111' }}>
           <button onClick={() => setDrawerOpen(true)}
-            className="md:hidden w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center flex-shrink-0">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#666' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
 
-          <div className="flex-1 text-center min-w-0">
-            <p className="text-sm text-gray-600 truncate">
-              <strong className="text-gray-900">{player.name}</strong>
-              {compareOn && playerB && <span className="text-gray-400"> vs </span>}
-              {compareOn && playerB && <strong className="text-gray-900">{playerB.name}</strong>}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-black tracking-tight truncate" style={{ color: '#f0f0f0' }}>
+              {player.name}
+              {compareOn && playerB && <span style={{ color: '#2a2a2a' }}> vs </span>}
+              {compareOn && playerB && <span>{playerB.name}</span>}
             </p>
           </div>
 
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5 flex-shrink-0">
+          <div className="flex items-center rounded-lg p-0.5 flex-shrink-0" style={{ background: '#161616', border: '1px solid #1e1e1e' }}>
             {[['zones','Zones'],['shots','Shots']].map(([v, lbl]) => (
               <button key={v} onClick={() => setView(v)}
-                className={`px-2.5 h-8 rounded-md text-[11px] font-bold transition-all
-                  ${view === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                className="px-3 h-7 rounded-md text-[11px] font-black transition-all"
+                style={view === v ? { background: ORANGE, color: '#fff' } : { color: '#444' }}>
                 {lbl}
               </button>
             ))}
           </div>
 
           <button onClick={() => { setCompareOn(o => !o); if (compareOn) { setPlayerB(null); setZonesB([]); setStatsB(null) } }}
-            className={`px-3 h-9 rounded-lg text-xs font-bold transition-all flex-shrink-0
-              ${compareOn ? 'bg-[#FF6900] text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+            className="px-3 h-8 rounded-lg text-xs font-black transition-all flex-shrink-0"
+            style={compareOn
+              ? { background: ORANGE, color: '#fff' }
+              : { background: '#161616', border: '1px solid #2a2a2a', color: '#555' }}>
             {compareOn ? '× Exit' : '⇄ Compare'}
           </button>
         </div>
 
-        {/* Compare panel (when on, no player B yet) */}
         {compareOn && !playerB && (
-          <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e1e', background: '#111' }}>
             <PlayerSearch
               allPlayers={allPlayers} teams={teams}
               team={teamB} onTeamChange={setTeamB}
               query={queryB} setQuery={setQueryB}
               onSelect={loadPlayerB}
-              placeholder="Search second player to compare..."
+              placeholder="Search second player..."
             />
           </div>
         )}
 
-        {/* Filter chips */}
-        <div className="flex justify-center gap-1.5 py-3 px-3 flex-shrink-0 overflow-x-auto">
+        <div className="flex justify-center gap-2 py-3 px-4 flex-shrink-0 overflow-x-auto" style={{ background: '#0d0d0d' }}>
           {FILTERS.map(([val, lbl]) => (
             <button key={val} onClick={() => setFilter(val)}
-              className={`px-3.5 md:px-4 py-1.5 rounded-full text-xs font-semibold border transition-all flex-shrink-0
-                ${filter === val
-                  ? 'bg-[#FF6900] border-[#FF6900] text-white shadow-md shadow-orange-500/20'
-                  : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+              className="px-4 py-1.5 rounded-full text-xs font-black transition-all flex-shrink-0 tracking-wide"
+              style={filter === val
+                ? { background: ORANGE, color: '#fff', border: `1px solid ${ORANGE}` }
+                : { background: 'transparent', border: '1px solid #2a2a2a', color: '#555' }}>
               {lbl}
             </button>
           ))}
         </div>
 
-        {/* Court area */}
-        <div className="flex-1 overflow-auto p-3 md:p-4 min-h-0">
+        <div className="flex-1 overflow-auto p-3 md:p-8 min-h-0" style={{ background: '#0d0d0d' }}>
           {loading ? (
-            <div className="h-full flex items-center justify-center text-gray-400 text-sm animate-pulse">Loading shot data…</div>
+            <div className="h-full flex items-center justify-center text-sm animate-pulse" style={{ color: '#2a2a2a' }}>Loading…</div>
           ) : compareOn && playerB ? (
-            <div className="flex flex-col lg:flex-row gap-4 h-full">
-              <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
-                <div className="w-full max-w-[400px]">
-                  <PlayerCard player={player} stats={stats}/>
-                  <div className="mt-2"><MiniStats stats={stats}/></div>
+            <div className="flex flex-col lg:flex-row gap-6 h-full">
+              {[
+                { p: player, z: zones, s: stats, sh: shots, color: ORANGE },
+                { p: playerB, z: zonesB, s: statsB, sh: shotsB, color: '#3b82f6' },
+              ].map(({ p, z, s, sh, color }, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-3 min-w-0">
+                  <div className="w-full max-w-[400px]">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black"
+                          style={{ background: `${color}15`, border: `1px solid ${color}40`, color }}>
+                          {p.name.split(' ').map(n => n[0]).join('').slice(0,2)}
+                        </div>
+                        <div>
+                          <div className="text-sm font-black" style={{ color: '#f0f0f0' }}>{p.name}</div>
+                          <div className="text-[10px]" style={{ color: '#444' }}>{p.team}</div>
+                        </div>
+                      </div>
+                      {idx === 1 && (
+                        <button onClick={() => { setPlayerB(null); setZonesB([]); setStatsB(null) }}
+                          className="text-[11px]" style={{ color: '#444' }}>change</button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
+                      <StatCard val={s?.PTS ?? '—'} label="PPG" color={color}/>
+                      <StatCard val={s?.FG_PCT != null ? (s.FG_PCT*100).toFixed(0)+'%' : '—'} label="FG%" color={color}/>
+                      <StatCard val={s?.FG3_PCT != null ? (s.FG3_PCT*100).toFixed(0)+'%' : '—'} label="3P%" color={color}/>
+                      <StatCard val={s?.AST ?? '—'} label="AST" color={color}/>
+                    </div>
+                  </div>
+                  <CourtChart zones={z} shots={sh} filter={filter} view={view}/>
                 </div>
-                <CourtChart zones={zones} shots={shots} filter={filter} view={view}/>
-              </div>
-              <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
-                <div className="w-full max-w-[400px] flex items-center justify-between">
-                  <PlayerCard player={playerB} stats={statsB} color="#2563eb"/>
-                  <button onClick={() => { setPlayerB(null); setZonesB([]); setStatsB(null) }}
-                    className="text-[11px] text-gray-400 hover:text-gray-600">change</button>
-                </div>
-                <div className="w-full max-w-[400px]"><MiniStats stats={statsB}/></div>
-                <CourtChart zones={zonesB} shots={shotsB} filter={filter} view={view}/>
-              </div>
+              ))}
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center">
+            <div className="flex items-start md:items-center justify-center h-full">
               <CourtChart zones={zones} shots={shots} filter={filter} view={view}/>
             </div>
           )}

@@ -3,4 +3,8 @@
 @tailwind utilities;
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { overflow: hidden; }
+html, body { height: 100dvh; overflow: hidden; background: #0d0d0d; color: #f0f0f0; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
