@@ -141,7 +141,7 @@ export default function ShotTracker() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#111', borderRight: '1px solid #1e1e1e' }}>
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: '#aaa' }}>01 — Player</span>
+          <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: '#aaa' }}>Player</span>
           {lastUpdated && <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ color: ORANGE, background: `${ORANGE}15`, border: `1px solid ${ORANGE}30` }}>● Live</span>}
         </div>
         <PlayerSearch
@@ -166,7 +166,7 @@ export default function ShotTracker() {
       </div>
 
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
-        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>02 — Season Stats</div>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>Season Stats</div>
         <div className="grid grid-cols-4 gap-1.5">
           <StatCard val={stats?.PTS ?? '—'} label="PPG" color={ORANGE}/>
           <StatCard val={stats?.FG_PCT != null ? (stats.FG_PCT*100).toFixed(0)+'%' : '—'} label="FG%" color="#22c55e"/>
@@ -176,7 +176,7 @@ export default function ShotTracker() {
       </div>
 
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
-        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>03 — Best Zones</div>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>Best Zones</div>
         <div className="space-y-1">
           {sortedZones.slice(0, 5).map((z, i) => (
             <div key={z.id} className="flex items-center gap-2.5 py-1.5">
@@ -196,7 +196,7 @@ export default function ShotTracker() {
       <BettingInsights stats={stats} zones={zones}/>
 
       <div className="px-5 py-4">
-        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>04 — All Zones</div>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>All Zones</div>
         <div className="space-y-2">
           {ZONE_ORDER.map(id => {
             const z = zones.find(x => x.id === id)

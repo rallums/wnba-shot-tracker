@@ -14,10 +14,7 @@ export default function Page() {
           <span className="text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
             style={{ color: '#888', background: '#1a1a1a' }}>BETA</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase" style={{ color: '#333' }}>
-          <span>Shot Tracker</span>
-          <span style={{ color: '#F57B20' }}>↗</span>
-        </div>
+        <div/>
       </nav>
       <ShotTracker />
     </main>
