@@ -136,7 +136,7 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
         {view === 'shots' && shots.length === 0 && (
           <text x="250" y="220" textAnchor="middle" fill={lineColor}
             fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.6">
-            No shot data — run seed script first
+            Shot tracking not available for this player
           </text>
         )}
       </svg>
