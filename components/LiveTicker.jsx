@@ -13,11 +13,15 @@ export default function LiveTicker() {
 
   if (!games.length) return null
 
-  // Duplicate the array for seamless scroll
   const loop = [...games, ...games]
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 
   return (
-    <div className="bg-black/90 overflow-hidden border-b border-orange-500/30 relative">
+    <div className="bg-black/90 overflow-hidden border-b border-orange-500/30 relative flex items-center">
+      <div className="flex-shrink-0 px-3 text-[10px] font-black tracking-widest uppercase border-r border-orange-500/20 py-1.5 z-10"
+        style={{ color: '#F57B20', background: '#0d0d0d' }}>
+        {today}
+      </div>
       <style>{`
         @keyframes ticker-scroll {
           0%   { transform: translateX(0); }
@@ -32,7 +36,7 @@ export default function LiveTicker() {
         .live-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
       `}</style>
 
-      <div className="ticker-track flex whitespace-nowrap py-1.5">
+      <div className="ticker-track flex whitespace-nowrap py-1.5 overflow-hidden">
         {loop.map((g, i) => {
           const liveColor = g.status === 'live'     ? 'text-emerald-300'
                           : g.status === 'final'    ? 'text-gray-500'
