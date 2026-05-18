@@ -11,6 +11,8 @@ export default function Page() {
           <span className="font-black text-white tracking-tight" style={{ fontSize: '15px' }}>WNBA<span style={{ color: '#F57B20' }}>SHOTS</span></span>
           <span className="text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded border"
             style={{ color: '#F57B20', borderColor: '#F57B20', opacity: 0.7 }}>2026</span>
+          <span className="text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+            style={{ color: '#888', background: '#1a1a1a' }}>BETA</span>
         </div>
         <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase" style={{ color: '#333' }}>
           <span>Shot Tracker</span>
