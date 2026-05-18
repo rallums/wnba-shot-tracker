@@ -214,8 +214,8 @@ export default function ShotTracker() {
                 </span>
                 <span className="text-[9px] font-black px-1.5 py-0.5 rounded w-7 text-center"
                   style={{
-                    background: above ? `${ORANGE}15` : below ? '#3b82f615' : '#1e1e1e',
-                    color: above ? ORANGE : below ? '#3b82f6' : '#333'
+                    background: above ? '#22c55e15' : below ? '#ef444415' : '#1e1e1e',
+                    color: above ? '#22c55e' : below ? '#ef4444' : '#333'
                   }}>
                   {above ? `+${Math.round((z.fgPct - 0.37)*100)}` : below ? `−${Math.round((0.37 - z.fgPct)*100)}` : 'AVG'}
                 </span>
