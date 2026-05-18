@@ -95,9 +95,10 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
 
             {filteredZones.map(zone => {
               const isHot = zone.fgPct >= 0.50
-              const isMid = zone.fgPct >= 0.40
+              const isMid = zone.fgPct >= 0.38
               const pct   = Math.round(zone.fgPct * 100)
               const isHov = hovered === zone.id
+              const dotColor = isHot ? '#22c55e' : isMid ? '#F57B20' : '#ef4444'
 
               return (
                 <g key={zone.id}
@@ -107,12 +108,12 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
                   {isHov && (
                     <circle cx={zone.center.x} cy={zone.center.y}
                       r={zone.radius + 6} fill="none"
-                      stroke={zone.color} strokeWidth="1.5" opacity="0.4"/>
+                      stroke={dotColor} strokeWidth="1.5" opacity="0.4"/>
                   )}
                   <circle
                     cx={zone.center.x} cy={zone.center.y}
                     r={isHov ? zone.radius + 2 : zone.radius}
-                    fill={zone.color} opacity={isHov ? 0.95 : 0.82}
+                    fill={dotColor} opacity={isHov ? 0.95 : 0.82}
                     filter={isHot ? 'url(#glow-hot)' : isMid ? 'url(#glow-mid)' : undefined}
                     style={{ transition: 'r 0.15s, opacity 0.15s' }}
                   />
