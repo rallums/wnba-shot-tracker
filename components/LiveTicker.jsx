@@ -11,10 +11,8 @@ export default function LiveTicker() {
     }).catch(() => {})
   }, [])
 
-  if (!games.length) return null
-
-  const loop = [...games, ...games]
   const today = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  const loop = [...games, ...games]
 
   return (
     <div className="bg-black/90 overflow-hidden border-b border-orange-500/30 relative flex items-center">
@@ -36,26 +34,29 @@ export default function LiveTicker() {
         .live-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
       `}</style>
 
-      <div className="ticker-track flex whitespace-nowrap py-1.5 overflow-hidden">
-        {loop.map((g, i) => {
-          const liveColor = g.status === 'live'     ? 'text-emerald-300'
-                          : g.status === 'final'    ? 'text-gray-500'
-                          :                            'text-white'
-          return (
-            <div key={i} className="flex items-center gap-2 px-5 text-[12px] font-medium flex-shrink-0">
-              {g.status === 'live' && (
-                <span className="live-dot w-2 h-2 rounded-full bg-emerald-400 inline-block"/>
-              )}
-              {g.status === 'final' && <span className="text-[9px] font-bold text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded">FINAL</span>}
-              <span className={`font-bold ${liveColor}`}>{g.away} @ {g.home}</span>
-              <span className="text-gray-400">·</span>
-              <span className="text-gray-300">{g.time}</span>
-              <span className="text-gray-400">·</span>
-              <span className="text-orange-300">{g.channel}</span>
-            </div>
-          )
-        })}
-      </div>
+      {games.length === 0 ? (
+        <span className="px-4 text-[11px]" style={{ color: '#333' }}>No games scheduled today</span>
+      ) : (
+        <div className="ticker-track flex whitespace-nowrap py-1.5">
+          {loop.map((g, i) => {
+            const liveColor = g.status === 'live'  ? 'text-emerald-300'
+                            : g.status === 'final' ? 'text-gray-500'
+                            :                        'text-white'
+            return (
+              <div key={i} className="flex items-center gap-2 px-6 text-[12px] font-medium flex-shrink-0"
+                style={{ borderRight: '1px solid #1e1e1e' }}>
+                {g.status === 'live' && (
+                  <span className="live-dot w-2 h-2 rounded-full bg-emerald-400 inline-block"/>
+                )}
+                {g.status === 'final' && <span className="text-[9px] font-bold text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded">FINAL</span>}
+                <span className={`font-bold ${liveColor}`}>{g.away} @ {g.home}</span>
+                <span className="text-gray-300">{g.time}</span>
+                <span className="text-orange-300">{g.channel}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
