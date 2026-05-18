@@ -94,11 +94,10 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
             ))}
 
             {filteredZones.map(zone => {
-              const isHot = zone.fgPct >= 0.50
-              const isMid = zone.fgPct >= 0.38
               const pct   = Math.round(zone.fgPct * 100)
               const isHov = hovered === zone.id
-              const dotColor = isHot ? '#22c55e' : isMid ? '#F57B20' : '#ef4444'
+              const dotColor = '#F57B20'
+              const r = isHov ? zone.radius + 2 : zone.radius
 
               return (
                 <g key={zone.id}
@@ -107,25 +106,23 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
                   onMouseLeave={() => setHovered(null)}>
                   {isHov && (
                     <circle cx={zone.center.x} cy={zone.center.y}
-                      r={zone.radius + 6} fill="none"
+                      r={r + 6} fill="none"
                       stroke={dotColor} strokeWidth="1.5" opacity="0.4"/>
                   )}
                   <circle
                     cx={zone.center.x} cy={zone.center.y}
-                    r={isHov ? zone.radius + 2 : zone.radius}
+                    r={r}
                     fill={dotColor} opacity={isHov ? 0.95 : 0.82}
-                    filter={isHot ? 'url(#glow-hot)' : isMid ? 'url(#glow-mid)' : undefined}
+                    filter="url(#glow-mid)"
                     style={{ transition: 'r 0.15s, opacity 0.15s' }}
                   />
-                  {zone.radius >= 9 && (
-                    <text x={zone.center.x} y={zone.center.y + 4}
-                      textAnchor="middle" fill="white"
-                      fontSize={zone.radius >= 12 ? "8" : "6.5"}
-                      fontFamily="system-ui,sans-serif" fontWeight="800"
-                      style={{ pointerEvents: 'none' }}>
-                      {pct}%
-                    </text>
-                  )}
+                  <text x={zone.center.x} y={zone.center.y + 4}
+                    textAnchor="middle" fill="white"
+                    fontSize={r >= 12 ? "8" : r >= 9 ? "6.5" : "5.5"}
+                    fontFamily="system-ui,sans-serif" fontWeight="800"
+                    style={{ pointerEvents: 'none' }}>
+                    {pct}%
+                  </text>
                 </g>
               )
             })}
