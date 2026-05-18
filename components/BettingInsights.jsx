@@ -4,8 +4,8 @@ export default function BettingInsights({ stats, zones }) {
   if (!stats) {
     return (
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
-        <div className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: '#333' }}>📊 Parlay Analysis</div>
-        <div className="text-[11px] italic" style={{ color: '#333' }}>Select a player to see prop leans</div>
+        <div className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: '#777' }}>📊 Parlay Analysis</div>
+        <div className="text-[11px] italic" style={{ color: '#777' }}>Select a player to see prop leans</div>
       </div>
     )
   }
@@ -56,7 +56,7 @@ export default function BettingInsights({ stats, zones }) {
   return (
     <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: '#333' }}>📊 Parlay Analysis</span>
+        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: '#777' }}>📊 Parlay Analysis</span>
         {lowSample && (
           <span title="Small sample — only a few games played; stats may be unreliable"
             className="text-[9px] font-bold px-1.5 py-0.5 rounded cursor-help"
@@ -72,7 +72,7 @@ export default function BettingInsights({ stats, zones }) {
             <div key={p.name} className="rounded-lg p-2.5"
               style={{ background: '#161616', border: '1px solid #1e1e1e' }}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-bold" style={{ color: '#888' }}>{p.name}</span>
+                <span className="text-[11px] font-bold" style={{ color: '#bbb' }}>{p.name}</span>
                 <span className="text-[9px] font-black px-2 py-0.5 rounded-full"
                   style={{
                     background: isOver ? '#22c55e15' : isUnder ? '#ef444415' : '#1e1e1e',
@@ -82,10 +82,10 @@ export default function BettingInsights({ stats, zones }) {
                 </span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-[10px]" style={{ color: '#444' }}>Line {p.line}</span>
-                <span className="text-[11px] font-black" style={{ color: '#f0f0f0' }}>{p.avg}<span className="text-[10px] font-normal" style={{ color: '#444' }}> avg</span></span>
+                <span className="text-[10px]" style={{ color: '#bbb' }}>Line {p.line}</span>
+                <span className="text-[11px] font-black" style={{ color: '#f0f0f0' }}>{p.avg}<span className="text-[10px] font-normal" style={{ color: '#bbb' }}> avg</span></span>
               </div>
-              <div className="text-[10px] mt-0.5" style={{ color: '#333' }}>{p.reason}</div>
+              <div className="text-[10px] mt-0.5" style={{ color: '#777' }}>{p.reason}</div>
             </div>
           )
         })}

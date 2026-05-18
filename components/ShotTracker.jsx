@@ -35,7 +35,7 @@ function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelec
         </select>
       )}
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: '#444' }}>⌕</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: '#bbb' }}>⌕</span>
         <input
           className="w-full h-9 rounded-lg pl-8 pr-3 text-sm outline-none transition-all"
           style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#f0f0f0' }}
@@ -60,9 +60,9 @@ function PlayerSearch({ allPlayers, team, onTeamChange, query, setQuery, onSelec
                 </div>
                 <div>
                   <div className="text-sm font-bold" style={{ color: '#f0f0f0' }}>{p.name}</div>
-                  <div className="text-[11px]" style={{ color: '#444' }}>{p.team}</div>
+                  <div className="text-[11px]" style={{ color: '#777' }}>{p.team}</div>
                 </div>
-                <span className="ml-auto text-xs" style={{ color: '#333' }}>→</span>
+                <span className="ml-auto text-xs" style={{ color: '#aaa' }}>→</span>
               </div>
             ))}
           </div>
@@ -76,7 +76,7 @@ function StatCard({ val, label, color = ORANGE }) {
   return (
     <div className="rounded-xl p-3 text-center" style={{ background: '#161616', border: '1px solid #1e1e1e', borderTop: `2px solid ${color}` }}>
       <div className="text-xl font-black leading-none" style={{ color }}>{val}</div>
-      <div className="text-[9px] font-bold tracking-widest uppercase mt-1" style={{ color: '#444' }}>{label}</div>
+      <div className="text-[9px] font-bold tracking-widest uppercase mt-1" style={{ color: '#bbb' }}>{label}</div>
     </div>
   )
 }
@@ -141,7 +141,7 @@ export default function ShotTracker() {
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#111', borderRight: '1px solid #1e1e1e' }}>
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: '#333' }}>01 — Player</span>
+          <span className="text-[9px] font-black tracking-widest uppercase" style={{ color: '#aaa' }}>01 — Player</span>
           {lastUpdated && <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ color: ORANGE, background: `${ORANGE}15`, border: `1px solid ${ORANGE}30` }}>● Live</span>}
         </div>
         <PlayerSearch
@@ -160,13 +160,13 @@ export default function ShotTracker() {
           </div>
           <div>
             <div className="font-black text-sm leading-tight" style={{ color: '#f0f0f0' }}>{player.name}</div>
-            <div className="text-[11px] font-semibold mt-0.5" style={{ color: '#444' }}>{player.team} · 2026</div>
+            <div className="text-[11px] font-semibold mt-0.5" style={{ color: '#bbb' }}>{player.team} · 2026</div>
           </div>
         </div>
       </div>
 
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
-        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#333' }}>02 — Season Stats</div>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>02 — Season Stats</div>
         <div className="grid grid-cols-4 gap-1.5">
           <StatCard val={stats?.PTS ?? '—'} label="PPG" color={ORANGE}/>
           <StatCard val={stats?.FG_PCT != null ? (stats.FG_PCT*100).toFixed(0)+'%' : '—'} label="FG%" color="#22c55e"/>
@@ -176,12 +176,12 @@ export default function ShotTracker() {
       </div>
 
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e1e' }}>
-        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#333' }}>03 — Best Zones</div>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>03 — Best Zones</div>
         <div className="space-y-1">
           {sortedZones.slice(0, 5).map((z, i) => (
             <div key={z.id} className="flex items-center gap-2.5 py-1.5">
-              <span className="text-[9px] font-black w-3 text-right" style={{ color: '#2a2a2a' }}>0{i+1}</span>
-              <span className="flex-1 text-xs font-semibold" style={{ color: '#666' }}>{z.label}</span>
+              <span className="text-[9px] font-black w-3 text-right" style={{ color: '#555' }}>0{i+1}</span>
+              <span className="flex-1 text-xs font-semibold" style={{ color: '#aaa' }}>{z.label}</span>
               <div className="w-10 h-0.5 rounded-full overflow-hidden" style={{ background: '#1e1e1e' }}>
                 <div className="h-full rounded-full" style={{ width: `${z.fgPct * 100}%`, background: z.color }}/>
               </div>
@@ -196,7 +196,7 @@ export default function ShotTracker() {
       <BettingInsights stats={stats} zones={zones}/>
 
       <div className="px-5 py-4">
-        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#333' }}>04 — All Zones</div>
+        <div className="text-[9px] font-black tracking-widest uppercase mb-3" style={{ color: '#aaa' }}>04 — All Zones</div>
         <div className="space-y-2">
           {ZONE_ORDER.map(id => {
             const z = zones.find(x => x.id === id)
@@ -205,7 +205,7 @@ export default function ShotTracker() {
             return (
               <div key={id} className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: z.color }}/>
-                <span className="flex-1 text-[11px]" style={{ color: '#555' }}>{z.label}</span>
+                <span className="flex-1 text-[11px]" style={{ color: '#999' }}>{z.label}</span>
                 <div className="w-10 h-0.5 rounded-full overflow-hidden" style={{ background: '#1e1e1e' }}>
                   <div className="h-full rounded-full" style={{ width: `${z.fgPct * 100}%`, background: z.color }}/>
                 </div>
@@ -252,7 +252,7 @@ export default function ShotTracker() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-black tracking-tight truncate" style={{ color: '#f0f0f0' }}>
               {player.name}
-              {compareOn && playerB && <span style={{ color: '#2a2a2a' }}> vs </span>}
+              {compareOn && playerB && <span style={{ color: '#555' }}> vs </span>}
               {compareOn && playerB && <span>{playerB.name}</span>}
             </p>
           </div>
@@ -302,7 +302,7 @@ export default function ShotTracker() {
 
         <div className="flex-1 overflow-auto p-3 md:p-8 min-h-0" style={{ background: '#0d0d0d' }}>
           {loading ? (
-            <div className="h-full flex items-center justify-center text-sm animate-pulse" style={{ color: '#2a2a2a' }}>Loading…</div>
+            <div className="h-full flex items-center justify-center text-sm animate-pulse" style={{ color: '#555' }}>Loading…</div>
           ) : compareOn && playerB ? (
             <div className="flex flex-col lg:flex-row gap-6 h-full">
               {[
@@ -319,12 +319,12 @@ export default function ShotTracker() {
                         </div>
                         <div>
                           <div className="text-sm font-black" style={{ color: '#f0f0f0' }}>{p.name}</div>
-                          <div className="text-[10px]" style={{ color: '#444' }}>{p.team}</div>
+                          <div className="text-[10px]" style={{ color: '#777' }}>{p.team}</div>
                         </div>
                       </div>
                       {idx === 1 && (
                         <button onClick={() => { setPlayerB(null); setZonesB([]); setStatsB(null) }}
-                          className="text-[11px]" style={{ color: '#444' }}>change</button>
+                          className="text-[11px]" style={{ color: '#bbb' }}>change</button>
                       )}
                     </div>
                     <div className="grid grid-cols-4 gap-1">
