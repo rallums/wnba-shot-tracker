@@ -10,7 +10,7 @@ function mapShot(s) {
   return { sx: BX + s.x * FX, sy: BY - s.y * FX, m: s.m }
 }
 
-export default function CourtChart({ zones = [], shots = [], filter = 'all', view = 'zones' }) {
+export default function CourtChart({ zones = [], shots = [], filter = 'all', view = 'zones', compact = false }) {
   const [hovered, setHovered] = useState(null)
 
   const filteredZones = zones.filter(z => {
@@ -31,7 +31,7 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
   const mapped = filteredShots.map(mapShot).filter(s => s.sx >= 15 && s.sx <= 485 && s.sy >= 10 && s.sy <= 450)
 
   return (
-    <div className="relative w-full max-w-[620px] select-none">
+    <div className={`relative w-full select-none ${compact ? 'max-w-full' : 'max-w-[620px]'}`}>
       <svg viewBox="0 0 500 460" className="w-full">
         <defs>
           <filter id="glow-hot">
