@@ -243,7 +243,7 @@ export default function ShotTracker() {
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-4 py-3 flex-shrink-0 flex items-center gap-3" style={{ borderBottom: '1px solid #1e1e1e', background: '#111' }}>
           <button onClick={() => setDrawerOpen(true)}
-            className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            className="md:hidden w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#666' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -261,7 +261,7 @@ export default function ShotTracker() {
           <div className="flex items-center rounded-lg p-0.5 flex-shrink-0" style={{ background: '#161616', border: '1px solid #1e1e1e' }}>
             {[['zones','Zones'],['shots','Shots']].map(([v, lbl]) => (
               <button key={v} onClick={() => setView(v)}
-                className="px-3 h-7 rounded-md text-[11px] font-black transition-all"
+                className="px-3 h-9 rounded-md text-[11px] font-black transition-all"
                 style={view === v ? { background: ORANGE, color: '#fff' } : { color: '#444' }}>
                 {lbl}
               </button>
@@ -269,7 +269,7 @@ export default function ShotTracker() {
           </div>
 
           <button onClick={() => { setCompareOn(o => !o); if (compareOn) { setPlayerB(null); setZonesB([]); setStatsB(null) } }}
-            className="px-3 h-8 rounded-lg text-xs font-black transition-all flex-shrink-0"
+            className="px-3 h-11 rounded-lg text-xs font-black transition-all flex-shrink-0"
             style={compareOn
               ? { background: ORANGE, color: '#fff' }
               : { background: '#161616', border: '1px solid #2a2a2a', color: '#555' }}>
@@ -292,7 +292,7 @@ export default function ShotTracker() {
         <div className="flex justify-center gap-2 py-3 px-4 flex-shrink-0 overflow-x-auto" style={{ background: '#0d0d0d' }}>
           {FILTERS.map(([val, lbl]) => (
             <button key={val} onClick={() => setFilter(val)}
-              className="px-4 py-1.5 rounded-full text-xs font-black transition-all flex-shrink-0 tracking-wide"
+              className="px-4 min-h-[44px] rounded-full text-xs font-black transition-all flex-shrink-0 tracking-wide"
               style={filter === val
                 ? { background: ORANGE, color: '#fff', border: `1px solid ${ORANGE}` }
                 : { background: 'transparent', border: '1px solid #2a2a2a', color: '#555' }}>
