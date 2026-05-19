@@ -233,16 +233,17 @@ export default function ShotTracker() {
       <div className="hidden md:block w-[290px] flex-shrink-0">{Sidebar}</div>
 
       {drawerOpen && (
-        <>
-          <div onClick={() => setDrawerOpen(false)} className="md:hidden fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.7)' }}/>
-          <div className="md:hidden fixed left-0 top-0 h-full w-[85%] max-w-[320px] z-50 shadow-2xl">{Sidebar}</div>
-        </>
+        <div onClick={() => setDrawerOpen(false)} className="md:hidden fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.7)' }}/>
       )}
+      <div className="md:hidden fixed left-0 top-0 h-full w-[85%] max-w-[320px] z-50 shadow-2xl"
+        style={{ transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)' }}>
+        {Sidebar}
+      </div>
 
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-4 py-3 flex-shrink-0 flex items-center gap-3" style={{ borderBottom: '1px solid #1e1e1e', background: '#111' }}>
           <button onClick={() => setDrawerOpen(true)}
-            className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            className="md:hidden w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#666' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -260,7 +261,7 @@ export default function ShotTracker() {
           <div className="flex items-center rounded-lg p-0.5 flex-shrink-0" style={{ background: '#161616', border: '1px solid #1e1e1e' }}>
             {[['zones','Zones'],['shots','Shots']].map(([v, lbl]) => (
               <button key={v} onClick={() => setView(v)}
-                className="px-3 h-7 rounded-md text-[11px] font-black transition-all"
+                className="px-3 h-9 rounded-md text-[11px] font-black transition-all"
                 style={view === v ? { background: ORANGE, color: '#fff' } : { color: '#444' }}>
                 {lbl}
               </button>
@@ -268,7 +269,7 @@ export default function ShotTracker() {
           </div>
 
           <button onClick={() => { setCompareOn(o => !o); if (compareOn) { setPlayerB(null); setZonesB([]); setStatsB(null) } }}
-            className="px-3 h-8 rounded-lg text-xs font-black transition-all flex-shrink-0"
+            className="px-3 h-11 rounded-lg text-xs font-black transition-all flex-shrink-0"
             style={compareOn
               ? { background: ORANGE, color: '#fff' }
               : { background: '#161616', border: '1px solid #2a2a2a', color: '#555' }}>
@@ -291,7 +292,7 @@ export default function ShotTracker() {
         <div className="flex justify-center gap-2 py-3 px-4 flex-shrink-0 overflow-x-auto" style={{ background: '#0d0d0d' }}>
           {FILTERS.map(([val, lbl]) => (
             <button key={val} onClick={() => setFilter(val)}
-              className="px-4 py-1.5 rounded-full text-xs font-black transition-all flex-shrink-0 tracking-wide"
+              className="px-4 min-h-[44px] rounded-full text-xs font-black transition-all flex-shrink-0 tracking-wide"
               style={filter === val
                 ? { background: ORANGE, color: '#fff', border: `1px solid ${ORANGE}` }
                 : { background: 'transparent', border: '1px solid #2a2a2a', color: '#555' }}>
@@ -300,47 +301,78 @@ export default function ShotTracker() {
           ))}
         </div>
 
-        <div className="flex-1 overflow-auto p-3 md:p-8 min-h-0" style={{ background: '#0d0d0d' }}>
+        <div className="flex-1 overflow-hidden p-2 md:p-8 min-h-0" style={{ background: '#0d0d0d' }}>
           {loading ? (
             <div className="h-full flex items-center justify-center text-sm animate-pulse" style={{ color: '#555' }}>Loading…</div>
           ) : compareOn && playerB ? (
-            <div className="flex flex-col lg:flex-row gap-6 h-full">
+            <div className="flex flex-row gap-2 md:gap-6 h-full w-full">
               {[
                 { p: player, z: zones, s: stats, sh: shots, color: ORANGE },
                 { p: playerB, z: zonesB, s: statsB, sh: shotsB, color: '#3b82f6' },
               ].map(({ p, z, s, sh, color }, idx) => (
-                <div key={idx} className="flex-1 flex flex-col items-center gap-3 min-w-0">
-                  <div className="w-full max-w-[400px]">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black"
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2 min-w-0 overflow-hidden">
+                  <div className="w-full">
+                    <div className="flex items-center justify-between mb-1.5 px-0.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black flex-shrink-0"
                           style={{ background: `${color}15`, border: `1px solid ${color}40`, color }}>
                           {p.name.split(' ').map(n => n[0]).join('').slice(0,2)}
                         </div>
-                        <div>
-                          <div className="text-sm font-black" style={{ color: '#f0f0f0' }}>{p.name}</div>
-                          <div className="text-[10px]" style={{ color: '#777' }}>{p.team}</div>
+                        <div className="min-w-0">
+                          <div className="text-[11px] md:text-sm font-black truncate" style={{ color: '#f0f0f0' }}>{p.name}</div>
+                          <div className="text-[9px] md:text-[10px]" style={{ color: '#777' }}>{p.team}</div>
                         </div>
                       </div>
                       {idx === 1 && (
                         <button onClick={() => { setPlayerB(null); setZonesB([]); setStatsB(null) }}
-                          className="text-[11px]" style={{ color: '#bbb' }}>change</button>
+                          className="text-[10px] flex-shrink-0 ml-1" style={{ color: '#555' }}>✕</button>
                       )}
                     </div>
-                    <div className="grid grid-cols-4 gap-1">
+                    <div className="hidden md:grid grid-cols-4 gap-1 mb-2">
                       <StatCard val={s?.PTS ?? '—'} label="PPG" color={color}/>
                       <StatCard val={s?.FG_PCT != null ? (s.FG_PCT*100).toFixed(0)+'%' : '—'} label="FG%" color={color}/>
                       <StatCard val={s?.FG3_PCT != null ? (s.FG3_PCT*100).toFixed(0)+'%' : '—'} label="3P%" color={color}/>
                       <StatCard val={s?.AST ?? '—'} label="AST" color={color}/>
                     </div>
+                    <div className="flex md:hidden gap-1 mb-1.5">
+                      {[
+                        { v: s?.PTS ?? '—', l: 'PPG' },
+                        { v: s?.FG_PCT != null ? (s.FG_PCT*100).toFixed(0)+'%' : '—', l: 'FG%' },
+                      ].map(({ v, l }) => (
+                        <div key={l} className="flex-1 rounded-lg p-1.5 text-center" style={{ background: '#161616', border: `1px solid #1e1e1e`, borderTop: `2px solid ${color}` }}>
+                          <div className="text-sm font-black leading-none" style={{ color }}>{v}</div>
+                          <div className="text-[8px] font-bold tracking-widest uppercase mt-0.5" style={{ color: '#bbb' }}>{l}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <CourtChart zones={z} shots={sh} filter={filter} view={view}/>
+                  <div className="w-full flex-1 flex items-center">
+                    <CourtChart zones={z} shots={sh} filter={filter} view={view} compact/>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex items-start md:items-center justify-center h-full">
-              <CourtChart zones={zones} shots={shots} filter={filter} view={view}/>
+            <div className="flex flex-col h-full w-full">
+              <div className="flex items-start justify-center pt-2 md:pt-0 md:flex-1 md:items-center">
+                <CourtChart zones={zones} shots={shots} filter={filter} view={view}/>
+              </div>
+              {stats && (
+                <div className="md:hidden flex gap-2 px-2 pb-3 pt-2 flex-shrink-0">
+                  {[
+                    { v: stats.PTS?.toFixed(1) ?? '—', l: 'PPG', c: ORANGE },
+                    { v: stats.FG_PCT != null ? (stats.FG_PCT*100).toFixed(0)+'%' : '—', l: 'FG%', c: '#22c55e' },
+                    { v: stats.FG3_PCT != null ? (stats.FG3_PCT*100).toFixed(0)+'%' : '—', l: '3P%', c: '#a855f7' },
+                    { v: stats.AST?.toFixed(1) ?? '—', l: 'AST', c: '#3b82f6' },
+                    { v: stats.REB?.toFixed(1) ?? '—', l: 'REB', c: '#f59e0b' },
+                  ].map(({ v, l, c }) => (
+                    <div key={l} className="flex-1 rounded-xl p-2 text-center" style={{ background: '#161616', border: '1px solid #1e1e1e', borderTop: `2px solid ${c}` }}>
+                      <div className="text-sm font-black leading-none" style={{ color: c }}>{v}</div>
+                      <div className="text-[8px] font-bold tracking-widest uppercase mt-1" style={{ color: '#bbb' }}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

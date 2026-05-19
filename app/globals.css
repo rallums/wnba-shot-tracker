@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100dvh; overflow: hidden; background: #0d0d0d; color: #f0f0f0; }
+html, body { height: 100dvh; overflow: hidden; background: #0d0d0d; color: #f0f0f0; overscroll-behavior: contain; }
+button, a, [role="button"] { touch-action: manipulation; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
