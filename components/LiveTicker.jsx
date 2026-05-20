@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 
 export default function LiveTicker() {
   const [games, setGames] = useState([])
+  const [label, setLabel] = useState('')
 
   useEffect(() => {
     fetch('/api/schedule').then(r => r.json()).then(d => {
       if (d.games?.length) setGames(d.games)
+      if (d.label) setLabel(d.label)
     }).catch(() => {})
   }, [])
 
@@ -18,7 +20,7 @@ export default function LiveTicker() {
     <div className="bg-black/90 overflow-hidden border-b border-orange-500/30 relative flex items-center">
       <div className="flex-shrink-0 px-3 text-[10px] font-black tracking-widest uppercase border-r border-orange-500/20 py-1.5 z-10"
         style={{ color: '#F57B20', background: '#0d0d0d' }}>
-        {today}
+        {label || today}
       </div>
       <style>{`
         @keyframes ticker-scroll {

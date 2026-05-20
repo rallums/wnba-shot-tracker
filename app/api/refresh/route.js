@@ -15,8 +15,9 @@ export async function POST(request) {
   try {
     const { allZones, leaders, players, shotsByPlayer, schedule } = await request.json()
 
-    if (schedule) {
-      await kv.set('schedule:today:2026', schedule, { ex: 60 * 60 * 12 })
+    if (schedule?.length) {
+      // Full season schedule — long TTL (re-seed updates status of past games)
+      await kv.set('schedule:season:2026', schedule, { ex: 60 * 60 * 24 * 60 })
     }
 
     if (players?.length) {

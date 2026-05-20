@@ -122,30 +122,36 @@ for (let i = 0; i < playerIds.length; i += BATCH) {
 }
 console.log('')
 
-// Today's schedule
-console.log('Fetching today schedule...')
-let schedule = []
+// Full season schedule
+console.log('Fetching full season schedule...')
+let seasonSchedule = []
 try {
-  const today = new Date().toISOString().slice(0, 10)
-  const sb = await fetchWNBA('scoreboardv3', { LeagueID: '10', GameDate: today })
-  const games = sb.scoreboard?.games || []
-  schedule = games.map(g => {
-    const awayAbbr = g.awayTeam?.teamTricode || g.awayTeam?.teamName || '—'
-    const homeAbbr = g.homeTeam?.teamTricode || g.homeTeam?.teamName || '—'
-    const status = g.gameStatus === 2 ? 'live' : g.gameStatus === 3 ? 'final' : 'upcoming'
-    const broadcasters = g.broadcasters?.nationalBroadcasters?.map(b => b.broadcasterDisplay).join(', ')
-      || g.broadcasters?.homeTvBroadcasters?.map(b => b.broadcasterDisplay).join(', ')
-      || 'WNBA League Pass'
-    return {
-      away: awayAbbr, home: homeAbbr,
-      time: g.gameStatusText?.trim() || 'TBD',
-      channel: broadcasters, status,
+  const sb = await fetchWNBA('scheduleleaguev2', { LeagueID: '10', Season: SEASON })
+  const gameDates = sb.leagueSchedule?.gameDates || []
+  for (const gd of gameDates) {
+    // parse "05/14/2026 00:00:00" → "2026-05-14"
+    const [datePart] = gd.gameDate.split(' ')
+    const [mm, dd, yyyy] = datePart.split('/')
+    const dateISO = `${yyyy}-${mm}-${dd}`
+    for (const g of (gd.games || [])) {
+      const away = g.awayTeam?.teamTricode || '—'
+      const home = g.homeTeam?.teamTricode || '—'
+      const status = g.gameStatus === 2 ? 'live' : g.gameStatus === 3 ? 'final' : 'upcoming'
+      const broadcasters = g.broadcasters?.nationalBroadcasters?.map(b => b.broadcasterDisplay).join(', ')
+        || g.broadcasters?.homeTvBroadcasters?.map(b => b.broadcasterDisplay).join(', ')
+        || 'WNBA League Pass'
+      seasonSchedule.push({
+        date: dateISO, away, home,
+        time: g.gameStatusText?.trim() || 'TBD',
+        channel: broadcasters, status,
+      })
     }
-  })
-  console.log(`  Got ${schedule.length} games`)
+  }
+  console.log(`  Got ${seasonSchedule.length} games for ${SEASON} season`)
 } catch (e) {
-  console.log(`  Schedule fetch failed: ${e.message} (continuing)`)
+  console.log(`  Season schedule fetch failed: ${e.message} (continuing)`)
 }
+const schedule = seasonSchedule
 
 console.log('Posting to Vercel...')
 const res = await fetch(`${SITE_URL}/api/refresh`, {
