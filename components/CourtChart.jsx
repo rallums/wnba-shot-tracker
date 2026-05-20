@@ -35,18 +35,15 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
       <svg viewBox="0 0 500 460" className="w-full">
         <defs>
           <filter id="glow-hot">
-            <feGaussianBlur stdDeviation="3.5" result="b"/>
+            <feGaussianBlur stdDeviation="4" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
           <filter id="glow-mid">
-            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feGaussianBlur stdDeviation="2.5" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-        </defs>
-
-        <defs>
           <filter id="line-glow">
-            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feGaussianBlur stdDeviation="3" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>

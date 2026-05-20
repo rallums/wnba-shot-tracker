@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import CourtChart from './CourtChart'
 import BettingInsights from './BettingInsights'
+import DonutChart from './DonutChart'
 
 const ORANGE = '#F57B20'
 
@@ -193,6 +194,7 @@ export default function ShotTracker() {
         </div>
       </div>
 
+      <DonutChart stats={stats} zones={zones}/>
       <BettingInsights stats={stats} zones={zones}/>
 
       <div className="px-5 py-4">
@@ -328,11 +330,24 @@ export default function ShotTracker() {
                           className="text-[10px] flex-shrink-0 ml-1" style={{ color: '#555' }}>✕</button>
                       )}
                     </div>
-                    <div className="hidden md:grid grid-cols-4 gap-1 mb-2">
-                      <StatCard val={s?.PTS ?? '—'} label="PPG" color={color}/>
-                      <StatCard val={s?.FG_PCT != null ? (s.FG_PCT*100).toFixed(0)+'%' : '—'} label="FG%" color={color}/>
-                      <StatCard val={s?.FG3_PCT != null ? (s.FG3_PCT*100).toFixed(0)+'%' : '—'} label="3P%" color={color}/>
-                      <StatCard val={s?.AST ?? '—'} label="AST" color={color}/>
+                    <div className="hidden md:block mb-2 space-y-1.5">
+                      {[
+                        { label: 'PPG', val: s?.PTS?.toFixed(1) ?? '—', max: 35 },
+                        { label: 'FG%', val: s?.FG_PCT != null ? (s.FG_PCT*100).toFixed(0)+'%' : '—', max: 100, raw: (s?.FG_PCT||0)*100 },
+                        { label: '3P%', val: s?.FG3_PCT != null ? (s.FG3_PCT*100).toFixed(0)+'%' : '—', max: 60, raw: (s?.FG3_PCT||0)*100 },
+                        { label: 'AST', val: s?.AST?.toFixed(1) ?? '—', max: 12 },
+                      ].map(({ label, val, max, raw }) => {
+                        const pct = Math.min(100, ((raw ?? parseFloat(val)) / max) * 100) || 0
+                        return (
+                          <div key={label} className="flex items-center gap-2">
+                            <span className="text-[9px] font-black w-6 text-right" style={{ color: '#555' }}>{label}</span>
+                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color, boxShadow: `0 0 6px ${color}` }}/>
+                            </div>
+                            <span className="text-[10px] font-black w-8" style={{ color }}>{val}</span>
+                          </div>
+                        )
+                      })}
                     </div>
                     <div className="flex md:hidden gap-1 mb-1.5">
                       {[
