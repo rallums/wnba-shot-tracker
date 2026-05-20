@@ -253,7 +253,7 @@ export default function ShotTracker() {
           </button>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black tracking-tight truncate" style={{ color: '#f0f0f0' }}>
+            <p className="text-[13px] font-black tracking-tight leading-tight" style={{ color: '#f0f0f0' }}>
               {player.name}
               {compareOn && playerB && <span style={{ color: '#555' }}> vs </span>}
               {compareOn && playerB && <span>{playerB.name}</span>}
@@ -271,11 +271,12 @@ export default function ShotTracker() {
           </div>
 
           <button onClick={() => { setCompareOn(o => !o); if (compareOn) { setPlayerB(null); setZonesB([]); setStatsB(null) } }}
-            className="px-3 h-11 rounded-lg text-xs font-black transition-all flex-shrink-0"
+            className="h-11 rounded-lg font-black transition-all flex-shrink-0 px-2 md:px-3"
             style={compareOn
               ? { background: ORANGE, color: '#fff' }
               : { background: '#161616', border: '1px solid #2a2a2a', color: '#555' }}>
-            {compareOn ? '× Exit' : '⇄ Compare'}
+            <span className="md:hidden text-base">{compareOn ? '×' : '⇄'}</span>
+            <span className="hidden md:inline text-xs">{compareOn ? '× Exit' : '⇄ Compare'}</span>
           </button>
         </div>
 
