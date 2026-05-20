@@ -1,9 +1,6 @@
 'use client'
 import { useState } from 'react'
 
-// LOC_X: -250 to 250, LOC_Y: -50 to 400 (tenths of feet, basket at 0,0)
-// SVG: 500x460, basket at (250, 412), 470px playable width
-// factor: 470/500 = 0.94 (use 0.86 for slight inset)
 const FX = 0.86, BX = 250, BY = 412
 
 function mapShot(s) {
@@ -20,8 +17,7 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
     return true
   })
 
-  const lineColor = '#F57B20'
-  const bgColor   = '#0a0a0a'
+  const LINE = '#F57B20'
 
   const filteredShots = shots.filter(s => {
     if (filter === '3pt')   return Math.sqrt(s.x * s.x + s.y * s.y) > 200 || (Math.abs(s.x) >= 220 && s.y < 90)
@@ -32,63 +28,132 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
 
   return (
     <div className={`relative w-full select-none ${compact ? 'max-w-full' : 'max-w-[620px]'}`}>
+      <style>{`
+        @keyframes dot-pulse {
+          0%,100% { opacity: 0.85; }
+          50%      { opacity: 1; }
+        }
+        .zone-dot { animation: dot-pulse 2.5s ease-in-out infinite; }
+      `}</style>
+
       <svg viewBox="0 0 500 460" className="w-full">
         <defs>
-          <filter id="glow-hot">
-            <feGaussianBlur stdDeviation="3.5" result="b"/>
+          {/* Glows */}
+          <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-med" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <filter id="glow-mid">
-            <feGaussianBlur stdDeviation="2" result="b"/>
+          <filter id="glow-dot" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
+          <filter id="glow-shot" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          {/* Floor ambient glow — orange radial from basket */}
+          <radialGradient id="floor-glow" cx="50%" cy="90%" r="60%">
+            <stop offset="0%"   stopColor="#F57B20" stopOpacity="0.12"/>
+            <stop offset="40%"  stopColor="#F57B20" stopOpacity="0.04"/>
+            <stop offset="100%" stopColor="#F57B20" stopOpacity="0"/>
+          </radialGradient>
+
+          {/* Paint ambient fill */}
+          <radialGradient id="paint-glow" cx="50%" cy="80%" r="70%">
+            <stop offset="0%"   stopColor="#F57B20" stopOpacity="0.10"/>
+            <stop offset="100%" stopColor="#F57B20" stopOpacity="0"/>
+          </radialGradient>
+
+          {/* Corner vignette */}
+          <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+            <stop offset="50%"  stopColor="#0d0d0d" stopOpacity="0"/>
+            <stop offset="100%" stopColor="#000000" stopOpacity="0.7"/>
+          </radialGradient>
         </defs>
 
-        <defs>
-          <filter id="line-glow">
-            <feGaussianBlur stdDeviation="2" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
+        {/* Background */}
+        <rect width="500" height="460" fill="#080808"/>
 
-        {/* Court */}
-        <rect width="500" height="460" fill="#0d0d0d"/>
-        <rect x="15" y="10" width="470" height="440" fill={bgColor} stroke={lineColor} strokeWidth="1.5" rx="3" filter="url(#line-glow)"/>
+        {/* Court floor */}
+        <rect x="15" y="10" width="470" height="440" fill="#0c0c0c" rx="4"/>
 
-        {/* Paint */}
-        <rect x="190" y="248" width="120" height="192" fill="#F57B2008" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
-        <line x1="214" y1="248" x2="214" y2="440" stroke={lineColor} strokeWidth="0.8" opacity="0.4"/>
-        <line x1="286" y1="248" x2="286" y2="440" stroke={lineColor} strokeWidth="0.8" opacity="0.4"/>
+        {/* Ambient floor glow */}
+        <rect x="15" y="10" width="470" height="440" fill="url(#floor-glow)" rx="4"/>
+
+        {/* Court border — glowing */}
+        <rect x="15" y="10" width="470" height="440" fill="none"
+          stroke={LINE} strokeWidth="2" rx="4" filter="url(#glow-strong)"/>
+
+        {/* Paint fill */}
+        <rect x="190" y="248" width="120" height="192" fill="url(#paint-glow)"/>
+
+        {/* Paint box */}
+        <rect x="190" y="248" width="120" height="192" fill="none"
+          stroke={LINE} strokeWidth="2" filter="url(#glow-med)"/>
+
+        {/* Lane lines (inner) */}
+        <line x1="214" y1="248" x2="214" y2="440" stroke={LINE} strokeWidth="0.8" opacity="0.25"/>
+        <line x1="286" y1="248" x2="286" y2="440" stroke={LINE} strokeWidth="0.8" opacity="0.25"/>
+
+        {/* Elbow hash marks */}
+        {[270, 298, 326, 354, 382].map(y => (
+          <g key={y}>
+            <line x1="190" y1={y} x2="198" y2={y} stroke={LINE} strokeWidth="1" opacity="0.4"/>
+            <line x1="302" y1={y} x2="310" y2={y} stroke={LINE} strokeWidth="1" opacity="0.4"/>
+          </g>
+        ))}
 
         {/* FT line */}
-        <line x1="190" y1="248" x2="310" y2="248" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
-        <path d="M 190 248 A 60 60 0 0 1 310 248" fill="none" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
-        <path d="M 190 248 A 60 60 0 0 0 310 248" fill="none" stroke={lineColor} strokeWidth="1.5" strokeDasharray="5,4" opacity="0.5"/>
+        <line x1="190" y1="248" x2="310" y2="248" stroke={LINE} strokeWidth="2" filter="url(#glow-med)"/>
+
+        {/* FT circle top (solid) */}
+        <path d="M 190 248 A 60 60 0 0 1 310 248" fill="none"
+          stroke={LINE} strokeWidth="2" filter="url(#glow-med)"/>
+
+        {/* FT circle bottom (dashed) */}
+        <path d="M 190 248 A 60 60 0 0 0 310 248" fill="none"
+          stroke={LINE} strokeWidth="1.5" strokeDasharray="6,5" opacity="0.35"/>
+
+        {/* Restricted area arc */}
+        <path d="M 233 412 A 17 17 0 0 1 267 412" fill="none"
+          stroke={LINE} strokeWidth="1.5" opacity="0.6" filter="url(#glow-med)"/>
+
+        {/* Backboard */}
+        <line x1="226" y1="397" x2="274" y2="397" stroke={LINE} strokeWidth="3" filter="url(#glow-strong)"/>
 
         {/* Basket */}
-        <line x1="230" y1="400" x2="270" y2="400" stroke={lineColor} strokeWidth="2.5" filter="url(#line-glow)"/>
-        <circle cx="250" cy="412" r="9" fill="none" stroke={lineColor} strokeWidth="2" filter="url(#line-glow)"/>
-        <path d="M 238 412 A 12 12 0 0 1 262 412" fill="none" stroke={lineColor} strokeWidth="1.5" opacity="0.6"/>
+        <circle cx="250" cy="412" r="10" fill="none" stroke={LINE} strokeWidth="2.5" filter="url(#glow-strong)"/>
+
+        {/* 3pt corner lines */}
+        <line x1="30" y1="440" x2="30" y2="388" stroke={LINE} strokeWidth="2" filter="url(#glow-med)"/>
+        <line x1="470" y1="440" x2="470" y2="388" stroke={LINE} strokeWidth="2" filter="url(#glow-med)"/>
 
         {/* 3pt arc */}
-        <line x1="30" y1="440" x2="30" y2="391" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
-        <line x1="470" y1="440" x2="470" y2="391" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
-        <path d="M 30 391 A 221 221 0 0 1 470 391" fill="none" stroke={lineColor} strokeWidth="1.5" filter="url(#line-glow)"/>
+        <path d="M 30 388 A 224 224 0 0 1 470 388" fill="none"
+          stroke={LINE} strokeWidth="2" filter="url(#glow-strong)"/>
+
+        {/* Vignette overlay */}
+        <rect x="15" y="10" width="470" height="440" fill="url(#vignette)" rx="4"/>
 
         {view === 'zones' && (
           <>
+            {/* Zone labels */}
             {[
-              { x: 250, y: 136, label: 'TOP OF KEY' },
-              { x: 70,  y: 200, label: 'LEFT WING'  },
-              { x: 430, y: 200, label: 'RIGHT WING' },
-              { x: 125, y: 320, label: 'MID-RANGE'  },
-              { x: 375, y: 320, label: 'MID-RANGE'  },
-              { x: 250, y: 348, label: 'PAINT'      },
+              { x: 250, y: 120, label: 'TOP OF KEY' },
+              { x: 68,  y: 195, label: 'LEFT WING'  },
+              { x: 432, y: 195, label: 'RIGHT WING' },
+              { x: 118, y: 325, label: 'MID-RANGE'  },
+              { x: 382, y: 325, label: 'MID-RANGE'  },
+              { x: 250, y: 345, label: 'PAINT'      },
             ].map(({ x, y, label }) => (
               <text key={label+x} x={x} y={y} textAnchor="middle"
-                fill="#F57B2066" fontSize="7.5"
-                fontFamily="system-ui,sans-serif" fontWeight="700"
-                letterSpacing="0.12em" opacity="0.7">
+                fill="#F57B20" fontSize="7" opacity="0.35"
+                fontFamily="system-ui,sans-serif" fontWeight="800" letterSpacing="0.14em">
                 {label}
               </text>
             ))}
@@ -96,30 +161,34 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
             {filteredZones.map(zone => {
               const pct   = Math.round(zone.fgPct * 100)
               const isHov = hovered === zone.id
-              const dotColor = '#F57B20'
-              const r = isHov ? zone.radius + 2 : zone.radius
+              const r     = isHov ? zone.radius + 3 : zone.radius
 
               return (
-                <g key={zone.id}
-                  style={{ cursor: 'pointer' }}
+                <g key={zone.id} style={{ cursor: 'pointer' }}
                   onMouseEnter={() => setHovered(zone.id)}
                   onMouseLeave={() => setHovered(null)}>
-                  {isHov && (
-                    <circle cx={zone.center.x} cy={zone.center.y}
-                      r={r + 6} fill="none"
-                      stroke={dotColor} strokeWidth="1.5" opacity="0.4"/>
-                  )}
-                  <circle
-                    cx={zone.center.x} cy={zone.center.y}
-                    r={r}
-                    fill={dotColor} opacity={isHov ? 0.95 : 0.82}
-                    filter="url(#glow-mid)"
-                    style={{ transition: 'r 0.15s, opacity 0.15s' }}
-                  />
+
+                  {/* Outer pulse ring */}
+                  <circle cx={zone.center.x} cy={zone.center.y}
+                    r={r + 8} fill="none"
+                    stroke={LINE} strokeWidth="1" opacity={isHov ? 0.5 : 0.15}
+                    style={{ transition: 'opacity 0.2s' }}/>
+
+                  {/* Dot */}
+                  <circle cx={zone.center.x} cy={zone.center.y} r={r}
+                    fill={LINE} className="zone-dot"
+                    filter="url(#glow-dot)"
+                    style={{ transition: 'r 0.15s' }}/>
+
+                  {/* Inner bright core */}
+                  <circle cx={zone.center.x} cy={zone.center.y} r={r * 0.55}
+                    fill="white" opacity="0.25" style={{ pointerEvents: 'none' }}/>
+
+                  {/* Percentage */}
                   <text x={zone.center.x} y={zone.center.y + 4}
                     textAnchor="middle" fill="white"
-                    fontSize={r >= 12 ? "8" : r >= 9 ? "6.5" : "5.5"}
-                    fontFamily="system-ui,sans-serif" fontWeight="800"
+                    fontSize={r >= 13 ? "9" : r >= 10 ? "7.5" : "6"}
+                    fontFamily="system-ui,sans-serif" fontWeight="900"
                     style={{ pointerEvents: 'none' }}>
                     {pct}%
                   </text>
@@ -130,16 +199,17 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
         )}
 
         {view === 'shots' && mapped.map((s, i) => s.m ? (
-          <circle key={i} cx={s.sx} cy={s.sy} r="3" fill="#16a34a" opacity="0.85"/>
+          <circle key={i} cx={s.sx} cy={s.sy} r="3.5" fill="#16a34a"
+            filter="url(#glow-shot)" opacity="0.9"/>
         ) : (
-          <g key={i} opacity="0.7">
-            <line x1={s.sx - 3} y1={s.sy - 3} x2={s.sx + 3} y2={s.sy + 3} stroke="#b91c1c" strokeWidth="1.5"/>
-            <line x1={s.sx - 3} y1={s.sy + 3} x2={s.sx + 3} y2={s.sy - 3} stroke="#b91c1c" strokeWidth="1.5"/>
+          <g key={i} opacity="0.75" filter="url(#glow-shot)">
+            <line x1={s.sx-3.5} y1={s.sy-3.5} x2={s.sx+3.5} y2={s.sy+3.5} stroke="#ef4444" strokeWidth="1.8"/>
+            <line x1={s.sx-3.5} y1={s.sy+3.5} x2={s.sx+3.5} y2={s.sy-3.5} stroke="#ef4444" strokeWidth="1.8"/>
           </g>
         ))}
 
         {view === 'shots' && shots.length === 0 && (
-          <text x="250" y="220" textAnchor="middle" fill="#555"
+          <text x="250" y="220" textAnchor="middle" fill="#333"
             fontSize="11" fontFamily="system-ui,sans-serif">
             Shot tracking not available for this player
           </text>
@@ -151,11 +221,11 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
         if (!z) return null
         return (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-xl px-4 py-2.5 pointer-events-none z-10 whitespace-nowrap"
-            style={{ background: '#161616', border: '1px solid #F57B2040', boxShadow: '0 0 20px #F57B2020' }}>
-            <div className="text-sm font-bold" style={{ color: '#f0f0f0' }}>{z.label}</div>
+            style={{ background: '#111', border: `1px solid ${LINE}50`, boxShadow: `0 0 30px ${LINE}25` }}>
+            <div className="text-sm font-black" style={{ color: '#f0f0f0' }}>{z.label}</div>
             <div className="flex gap-4 mt-1">
-              <span className="text-[12px] font-semibold" style={{ color: z.color }}>{Math.round(z.fgPct * 100)}% FG</span>
-              <span className="text-[12px]" style={{ color: '#777' }}>{z.fga?.toFixed?.(1) ?? z.attempts} att/g</span>
+              <span className="text-[12px] font-bold" style={{ color: LINE }}>{Math.round(z.fgPct * 100)}% FG</span>
+              <span className="text-[12px]" style={{ color: '#555' }}>{z.fga?.toFixed?.(1) ?? z.attempts} att/g</span>
             </div>
           </div>
         )
@@ -163,9 +233,15 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
 
       {view === 'shots' && (
         <div className="absolute top-2 right-2 rounded-lg px-2.5 py-1.5 text-[10px] flex gap-3"
-          style={{ background: '#161616', border: '1px solid #2a2a2a' }}>
-          <span className="flex items-center gap-1" style={{ color: '#bbb' }}><span className="w-2 h-2 rounded-full" style={{ background: '#16a34a' }}/>Made {filteredShots.filter(s => s.m).length}</span>
-          <span className="flex items-center gap-1" style={{ color: '#bbb' }}><span style={{ color: '#b91c1c', fontWeight: 'bold' }}>×</span>Missed {filteredShots.filter(s => !s.m).length}</span>
+          style={{ background: '#111', border: '1px solid #1e1e1e' }}>
+          <span className="flex items-center gap-1.5" style={{ color: '#bbb' }}>
+            <span className="w-2 h-2 rounded-full" style={{ background: '#16a34a', boxShadow: '0 0 6px #16a34a' }}/>
+            Made {filteredShots.filter(s => s.m).length}
+          </span>
+          <span className="flex items-center gap-1.5" style={{ color: '#bbb' }}>
+            <span style={{ color: '#ef4444', fontWeight: 'bold' }}>×</span>
+            Missed {filteredShots.filter(s => !s.m).length}
+          </span>
         </div>
       )}
     </div>
