@@ -506,18 +506,27 @@ function ShotTrackerInner() {
           ) : compareOn && playerB ? (
             <>
               <div className="md:hidden flex gap-1 mb-2 px-1" role="tablist" aria-label="Compare players">
-                {[player, playerB].map((p, i) => (
+                {[
+                  { p: player, s: stats, color: ORANGE },
+                  { p: playerB, s: statsB, color: '#3b82f6' },
+                ].map(({ p, s, color }, i) => (
                   <button
                     key={p.id}
                     type="button"
                     role="tab"
                     aria-selected={mobileCompareTab === i}
                     onClick={() => setMobileCompareTab(i)}
-                    className={`flex-1 min-h-[44px] rounded-lg text-[11px] font-black truncate px-2 ${
-                      mobileCompareTab === i ? 'bg-wnba-orange text-white' : 'bg-wnba-surface-elevated text-wnba-dim border border-wnba-border'
+                    className={`flex-1 min-h-[52px] rounded-xl px-3 py-2 text-left transition-all ${
+                      mobileCompareTab === i
+                        ? 'text-white border-2'
+                        : 'bg-wnba-surface-elevated text-wnba-dim border border-wnba-border'
                     }`}
+                    style={mobileCompareTab === i ? { background: `${color}22`, borderColor: color } : {}}
                   >
-                    {p.name.split(' ').pop()}
+                    <div className="text-[11px] font-black truncate" style={mobileCompareTab === i ? { color } : {}}>{p.name}</div>
+                    <div className="text-[10px] font-bold mt-0.5" style={{ color: mobileCompareTab === i ? color : '#555' }}>
+                      {s ? `${s.PTS?.toFixed(1) ?? '—'} PPG · ${s.FG_PCT != null ? (s.FG_PCT * 100).toFixed(0) + '%' : '—'} FG` : p.team}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -535,15 +544,14 @@ function ShotTrackerInner() {
                 <CourtLegend view={view} />
               </div>
               {stats && (
-                <div className="md:hidden flex gap-2 px-2 pb-3 pt-2 flex-shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                <div className="md:hidden grid grid-cols-4 gap-2 px-2 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex-shrink-0">
                   {[
                     { v: stats.PTS?.toFixed(1) ?? '—', l: 'PPG', c: ORANGE },
                     { v: stats.FG_PCT != null ? (stats.FG_PCT * 100).toFixed(0) + '%' : '—', l: 'FG%', c: '#22c55e' },
                     { v: stats.FG3_PCT != null ? (stats.FG3_PCT * 100).toFixed(0) + '%' : '—', l: '3P%', c: '#a855f7' },
                     { v: stats.AST?.toFixed(1) ?? '—', l: 'AST', c: '#3b82f6' },
-                    { v: stats.REB?.toFixed(1) ?? '—', l: 'REB', c: '#f59e0b' },
                   ].map(({ v, l, c }) => (
-                    <div key={l} className="flex-1 rounded-xl p-2.5 text-center bg-wnba-surface-elevated border border-wnba-border" style={{ borderTop: `2px solid ${c}` }}>
+                    <div key={l} className="rounded-xl p-2.5 text-center bg-wnba-surface-elevated border border-wnba-border" style={{ borderTop: `2px solid ${c}` }}>
                       <div className="text-base font-black leading-none" style={{ color: c }}>{v}</div>
                       <div className="text-[9px] font-bold tracking-widest uppercase mt-1 text-wnba-muted">{l}</div>
                     </div>
