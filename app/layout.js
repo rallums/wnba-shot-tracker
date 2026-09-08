@@ -2,6 +2,12 @@ import './globals.css'
 import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://wnba-shot-tracker-947a.vercel.app'),
   title: 'WNBA Shots — Every Shot. Every Player. [Beta]',
