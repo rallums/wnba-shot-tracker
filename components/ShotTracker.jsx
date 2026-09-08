@@ -385,11 +385,11 @@ function ShotTrackerInner() {
         role="dialog"
         aria-modal="true"
         aria-label="Player menu"
-        className="md:hidden fixed left-0 top-0 h-full w-[85%] max-w-[320px] z-50 shadow-2xl transition-transform duration-250"
+        className="md:hidden fixed left-0 top-0 h-full w-[85%] max-w-[320px] z-50 shadow-2xl transition-transform duration-250 flex flex-col"
         style={{ transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-wnba-border bg-wnba-surface">
-          <span className="text-xs font-black text-wnba-muted uppercase tracking-widest">Menu</span>
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-wnba-border bg-wnba-surface">
+          <span className="text-xs font-black text-wnba-muted uppercase tracking-widest">Players</span>
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
@@ -399,7 +399,7 @@ function ShotTrackerInner() {
             ✕
           </button>
         </div>
-        {Sidebar}
+        <div className="flex-1 min-h-0">{Sidebar}</div>
       </div>
 
       <div className="flex-1 flex flex-col min-w-0">
