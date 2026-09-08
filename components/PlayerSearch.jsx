@@ -85,7 +85,7 @@ export default function PlayerSearch({
           onChange={e => onTeamChange(e.target.value)}
           aria-label="Filter by team"
           className="w-full h-8 rounded-lg px-2 text-xs font-semibold outline-none bg-wnba-input border border-wnba-border-strong text-wnba-muted appearance-none"
-          style={{ colorScheme: 'dark' }}
+          style={{ colorScheme: 'dark', WebkitTextFillColor: '#888888', background: '#1a1a1a' }}
         >
           <option value="all">All teams</option>
           {teams.map(t => <option key={t} value={t}>{t}</option>)}
@@ -114,7 +114,7 @@ export default function PlayerSearch({
             id={listId}
             ref={listRef}
             role="listbox"
-            className="absolute top-10 left-0 right-0 max-h-64 overflow-y-auto rounded-xl z-50 bg-wnba-surface-elevated border border-wnba-border-strong shadow-xl"
+            className="absolute top-10 left-0 right-0 max-h-[min(16rem,40svh)] overflow-y-auto rounded-xl z-50 bg-wnba-surface-elevated border border-wnba-border-strong shadow-xl"
           >
             {!query.trim() && popular.length > 0 && (
               <li className="px-3 py-1.5 text-[9px] font-black tracking-widest uppercase text-wnba-dim border-b border-wnba-border">
