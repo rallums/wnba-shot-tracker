@@ -222,7 +222,7 @@ function ShotTrackerInner() {
 
   const Sidebar = (
     <div className="flex flex-col h-full overflow-y-auto bg-wnba-surface border-r border-wnba-border">
-      <div className="px-5 py-4 border-b border-wnba-border">
+      <div className="px-5 py-4 border-b border-wnba-border relative z-[60]">
         <div className="flex items-center justify-between mb-1 gap-2">
           <span className="text-[9px] font-black tracking-widest uppercase text-wnba-muted">Player</span>
         </div>
