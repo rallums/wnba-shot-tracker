@@ -128,18 +128,18 @@ export default function PlayerSearch({
                 aria-selected={i === highlight}
                 onMouseDown={() => selectPlayer(p)}
                 onMouseEnter={() => setHighlight(i)}
-                className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer border-b border-wnba-border last:border-0 ${
-                  i === highlight ? 'bg-wnba-input' : ''
+                className={`flex items-center gap-3 px-3 py-3 cursor-pointer border-b border-wnba-border last:border-0 ${
+                  i === highlight ? 'bg-white/5' : ''
                 }`}
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-wnba-border border border-wnba-orange/30 text-wnba-orange">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black flex-shrink-0 bg-wnba-orange/10 border border-wnba-orange/50 text-wnba-orange">
                   {playerInitials(p.name)}
                 </div>
-                <div>
-                  <div className="text-sm font-bold text-wnba-text">{p.name}</div>
-                  <div className="text-[11px] text-wnba-muted">{p.team}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] font-bold text-white truncate">{p.name}</div>
+                  <div className="text-xs text-wnba-muted mt-0.5">{p.team}</div>
                 </div>
-                <span className="ml-auto text-xs text-wnba-muted" aria-hidden>→</span>
+                <span className="text-wnba-orange text-sm flex-shrink-0" aria-hidden>›</span>
               </li>
             ))}
           </ul>
