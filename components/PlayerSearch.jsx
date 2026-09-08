@@ -84,7 +84,8 @@ export default function PlayerSearch({
           value={team}
           onChange={e => onTeamChange(e.target.value)}
           aria-label="Filter by team"
-          className="w-full h-8 rounded-lg px-2 text-xs font-semibold outline-none bg-wnba-input border border-wnba-border-strong text-wnba-muted"
+          className="w-full h-8 rounded-lg px-2 text-xs font-semibold outline-none bg-wnba-input border border-wnba-border-strong text-wnba-muted appearance-none"
+          style={{ colorScheme: 'dark' }}
         >
           <option value="all">All teams</option>
           {teams.map(t => <option key={t} value={t}>{t}</option>)}
@@ -99,7 +100,8 @@ export default function PlayerSearch({
           aria-expanded={show && filtered.length > 0}
           aria-controls={listId}
           aria-autocomplete="list"
-          className="w-full h-9 rounded-lg pl-8 pr-3 text-sm outline-none transition-all bg-wnba-input border border-wnba-border-strong text-wnba-text focus:border-wnba-orange"
+          className="w-full h-9 rounded-lg pl-8 pr-3 text-sm outline-none transition-all bg-wnba-input border border-wnba-border-strong text-wnba-text focus:border-wnba-orange appearance-none"
+          style={{ colorScheme: 'dark', WebkitTextFillColor: '#f0f0f0', background: '#1a1a1a' }}
           placeholder={placeholder || 'Search player...'}
           value={query}
           onChange={e => { setQuery(e.target.value); setShow(true) }}

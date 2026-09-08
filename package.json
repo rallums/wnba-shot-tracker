@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "node --env-file=.env.local scripts/seed.mjs"
+    "seed": "node --env-file=.env.local scripts/seed.mjs",
+    "seed:schedule": "node --env-file=.env.local scripts/seed-schedule.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
