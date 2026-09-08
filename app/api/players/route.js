@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv'
+import { kv } from '@/lib/kv'
 import { getAllPlayers } from '@/lib/wnba-api'
 
 export async function GET() {

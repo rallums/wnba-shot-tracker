@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv'
+import { kv } from '@/lib/kv'
 import { rowToZones } from '@/lib/zones'
 
 export async function GET(request, { params }) {
