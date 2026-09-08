@@ -101,7 +101,7 @@ export default function PlayerSearch({
           aria-controls={listId}
           aria-autocomplete="list"
           className="w-full h-9 rounded-lg pl-8 pr-3 text-sm outline-none transition-all bg-wnba-input border border-wnba-border-strong text-wnba-text focus:border-wnba-orange appearance-none"
-          style={{ colorScheme: 'dark' }}
+          style={{ colorScheme: 'dark', WebkitTextFillColor: '#f0f0f0', background: '#1a1a1a' }}
           placeholder={placeholder || 'Search player...'}
           value={query}
           onChange={e => { setQuery(e.target.value); setShow(true) }}

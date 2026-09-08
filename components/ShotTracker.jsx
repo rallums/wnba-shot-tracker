@@ -212,7 +212,7 @@ function ShotTrackerInner() {
     if (!drawerOpen) return
     const onKey = (e) => { if (e.key === 'Escape') setDrawerOpen(false) }
     document.addEventListener('keydown', onKey)
-    drawerRef.current?.querySelector('button')?.focus()
+    setTimeout(() => drawerRef.current?.querySelector('input[type="search"]')?.focus(), 50)
     return () => document.removeEventListener('keydown', onKey)
   }, [drawerOpen])
 
