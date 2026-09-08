@@ -44,9 +44,12 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
         @media (prefers-reduced-motion: no-preference) {
           .zone-dot { animation: dot-pulse 2.5s ease-in-out infinite; }
         }
+        @media (max-width: 640px) {
+          .zone-label { display: none; }
+        }
       `}</style>
 
-      <svg viewBox="0 0 500 460" className="w-full">
+      <svg viewBox="-10 0 520 460" className="w-full">
         <defs>
           {/* Glows */}
           <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
@@ -162,11 +165,18 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
               { x: 250, y: 345, label: 'PAINT'      },
             ].map(({ x, y, label }) => (
               <text key={label+x} x={x} y={y} textAnchor="middle"
-                fill="#F57B20" fontSize="7" opacity="0.35"
+                fill="#F57B20" fontSize="7" opacity="0.35" className="zone-label"
                 fontFamily="system-ui,sans-serif" fontWeight="800" letterSpacing="0.14em">
                 {label}
               </text>
             ))}
+
+            {filteredZones.length === 0 && filter === 'hot' && (
+              <text x="250" y="220" textAnchor="middle" fill="#555"
+                fontSize="11" fontFamily="system-ui,sans-serif">
+                No hot zones this season
+              </text>
+            )}
 
             {filteredZones.map(zone => {
               const pct   = Math.round(zone.fgPct * 100)
