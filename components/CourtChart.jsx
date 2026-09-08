@@ -10,10 +10,17 @@ function mapShot(s) {
 export default function CourtChart({ zones = [], shots = [], filter = 'all', view = 'zones', compact = false }) {
   const [hovered, setHovered] = useState(null)
 
+  const maxFga = Math.max(...zones.map(z => z.fga ?? z.attempts ?? 0), 1)
+  const hotZoneIds = new Set(
+    zones
+      .filter(z => (z.fga ?? z.attempts ?? 0) >= Math.max(2, maxFga * 0.1) && z.fgPct >= 0.5)
+      .map(z => z.id)
+  )
+
   const filteredZones = zones.filter(z => {
     if (filter === '3pt')   return ['corner_l','corner_r','wing_l','wing_r','top_key','deep_3'].includes(z.id)
     if (filter === 'paint') return z.id === 'paint'
-    if (filter === 'hot')   return z.fgPct >= 0.45
+    if (filter === 'hot')   return hotZoneIds.has(z.id)
     return true
   })
 
@@ -22,6 +29,7 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
   const filteredShots = shots.filter(s => {
     if (filter === '3pt')   return Math.sqrt(s.x * s.x + s.y * s.y) > 200 || (Math.abs(s.x) >= 220 && s.y < 90)
     if (filter === 'paint') return Math.abs(s.x) <= 80 && s.y >= -10 && s.y <= 190
+    if (filter === 'hot')   return s.m === true || s.m === 1
     return true
   })
   const mapped = filteredShots.map(mapShot).filter(s => s.sx >= 15 && s.sx <= 485 && s.sy >= 10 && s.sy <= 450)
@@ -33,7 +41,9 @@ export default function CourtChart({ zones = [], shots = [], filter = 'all', vie
           0%,100% { opacity: 0.85; }
           50%      { opacity: 1; }
         }
-        .zone-dot { animation: dot-pulse 2.5s ease-in-out infinite; }
+        @media (prefers-reduced-motion: no-preference) {
+          .zone-dot { animation: dot-pulse 2.5s ease-in-out infinite; }
+        }
       `}</style>
 
       <svg viewBox="0 0 500 460" className="w-full">
