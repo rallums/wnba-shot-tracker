@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv'
+import { kv } from '@/lib/kv'
 import { timingSafeEqual } from 'crypto'
 
 const TTL = 60 * 60 * 24 * 8 // 8 days

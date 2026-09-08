@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv'
+import { kv } from '@/lib/kv'
 
 export async function GET() {
   const season = await kv.get('schedule:season:2026').catch(() => null)

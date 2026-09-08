@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv'
+import { kv } from '@/lib/kv'
 
 export async function GET() {
   const lastUpdated = await kv.get('meta:last_updated').catch(() => null)
