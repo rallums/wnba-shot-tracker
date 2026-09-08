@@ -225,13 +225,7 @@ function ShotTrackerInner() {
       <div className="px-5 py-4 border-b border-wnba-border">
         <div className="flex items-center justify-between mb-1 gap-2">
           <span className="text-[9px] font-black tracking-widest uppercase text-wnba-muted">Player</span>
-          <DataFreshnessBadge lastUpdated={lastUpdated} />
         </div>
-        {updatedLabel && (
-          <p className="text-[9px] text-wnba-dim mb-2 leading-snug">
-            Season totals · Refreshed weekly, not live
-          </p>
-        )}
         {playersError && (
           <p className="text-[10px] text-amber-500 mb-2">Player list unavailable — search may be limited.</p>
         )}
