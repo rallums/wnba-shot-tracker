@@ -221,8 +221,8 @@ function ShotTrackerInner() {
   const updatedLabel = formatLastUpdated(lastUpdated)
 
   const Sidebar = (
-    <div className="flex flex-col h-full overflow-y-auto bg-wnba-surface border-r border-wnba-border">
-      <div className="px-5 py-4 border-b border-wnba-border relative z-[60]">
+    <div className="flex flex-col h-full bg-wnba-surface border-r border-wnba-border">
+      <div className="flex-shrink-0 px-5 py-4 border-b border-wnba-border relative z-[60]">
         <div className="flex items-center justify-between mb-1 gap-2">
           <span className="text-[9px] font-black tracking-widest uppercase text-wnba-muted">Player</span>
         </div>
@@ -240,6 +240,7 @@ function ShotTrackerInner() {
         />
       </div>
 
+      <div className="flex-1 overflow-y-auto">
       <div className="px-5 py-4 border-b border-wnba-border">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 bg-wnba-orange/10 border border-wnba-orange/40 text-wnba-orange">
@@ -314,6 +315,7 @@ function ShotTrackerInner() {
             )
           })}
         </div>
+      </div>
       </div>
     </div>
   )
