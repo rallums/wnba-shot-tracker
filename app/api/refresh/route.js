@@ -13,7 +13,10 @@ export async function POST(request) {
   }
 
   try {
-    const { allZones, leaders, players, shotsByPlayer, schedule } = await request.json()
+    const body = await request.json()
+    const { allZones, leaders, players, shotsByPlayer, schedule } = body
+
+    const isValidId = id => /^\d+$/.test(String(id))
 
     if (schedule?.length) {
       // Full season schedule — long TTL (re-seed updates status of past games)
@@ -25,14 +28,14 @@ export async function POST(request) {
     }
 
     await Promise.all(
-      allZones.map(row =>
+      allZones.filter(row => isValidId(row.PLAYER_ID)).map(row =>
         kv.set(`player:${row.PLAYER_ID}:zones:2026`, row, { ex: TTL })
       )
     )
 
     // Store per-player stats for individual lookups
     await Promise.all(
-      leaders.map(p =>
+      leaders.filter(p => isValidId(p.PLAYER_ID)).map(p =>
         kv.set(`player:${p.PLAYER_ID}:stats:2026`, p, { ex: TTL })
       )
     )
@@ -40,9 +43,11 @@ export async function POST(request) {
     // Store per-player shot lists
     if (shotsByPlayer) {
       await Promise.all(
-        Object.entries(shotsByPlayer).map(([pid, shots]) =>
-          kv.set(`player:${pid}:shots:2026`, shots, { ex: TTL })
-        )
+        Object.entries(shotsByPlayer)
+          .filter(([pid]) => isValidId(pid))
+          .map(([pid, shots]) =>
+            kv.set(`player:${pid}:shots:2026`, shots, { ex: TTL })
+          )
       )
     }
 
@@ -57,6 +62,7 @@ export async function POST(request) {
 
     return Response.json({ refreshed: allZones.length, timestamp })
   } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 })
+    console.error('[refresh]', err)
+    return Response.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
