@@ -31,13 +31,15 @@ export default function LiveTicker() {
           0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
           50%      { opacity: 0.6; box-shadow: 0 0 0 6px rgba(16,185,129,0); }
         }
-        .ticker-track { animation: ticker-scroll 60s linear infinite; }
-        .ticker-track:hover { animation-play-state: paused; }
-        .live-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+        @media (prefers-reduced-motion: no-preference) {
+          .ticker-track { animation: ticker-scroll 60s linear infinite; }
+          .ticker-track:hover { animation-play-state: paused; }
+          .live-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+        }
       `}</style>
 
       {games.length === 0 ? (
-        <span className="px-4 text-[11px]" style={{ color: '#333' }}>No games scheduled today</span>
+        <span className="px-4 text-[11px]" style={{ color: '#444' }}>No games today — check back on the next game night</span>
       ) : (
         <div className="ticker-track flex whitespace-nowrap py-1.5">
           {loop.map((g, i) => {
