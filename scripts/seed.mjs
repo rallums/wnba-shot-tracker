@@ -14,6 +14,10 @@ const CHROME_PATHS = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/Applications/Chromium.app/Contents/MacOS/Chromium',
   '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+  '/usr/bin/google-chrome-stable',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium-browser',
+  '/usr/bin/chromium',
 ]
 
 function findChrome() {
@@ -193,25 +197,28 @@ try {
 const schedule = seasonSchedule
 
 async function writeToKv({ allZones, leaders, players, shotsByPlayer, schedule }) {
-  const { kv } = await import('@vercel/kv')
-  const TTL = 60 * 60 * 24 * 8
+  const { createClient } = await import('@vercel/kv')
+  const kv = createClient({
+    url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
+  })
 
   if (schedule?.length) {
-    await kv.set('schedule:season:2026', schedule, { ex: 60 * 60 * 24 * 60 })
+    await kv.set('schedule:season:2026', schedule)
   }
   if (players?.length) {
-    await kv.set('players:2026', players, { ex: TTL })
+    await kv.set('players:2026', players)
   }
   await Promise.all(
-    allZones.map(row => kv.set(`player:${row.PLAYER_ID}:zones:2026`, row, { ex: TTL }))
+    allZones.map(row => kv.set(`player:${row.PLAYER_ID}:zones:2026`, row))
   )
   await Promise.all(
-    leaders.map(p => kv.set(`player:${p.PLAYER_ID}:stats:2026`, p, { ex: TTL }))
+    leaders.map(p => kv.set(`player:${p.PLAYER_ID}:stats:2026`, p))
   )
   if (shotsByPlayer) {
     await Promise.all(
       Object.entries(shotsByPlayer).map(([pid, shots]) =>
-        kv.set(`player:${pid}:shots:2026`, shots, { ex: TTL })
+        kv.set(`player:${pid}:shots:2026`, shots)
       )
     )
   }
@@ -219,7 +226,7 @@ async function writeToKv({ allZones, leaders, players, shotsByPlayer, schedule }
     .filter(p => p.GP >= 5)
     .sort((a, b) => b.FG3_PCT - a.FG3_PCT)
     .slice(0, 20)
-  await kv.set('league:leaders:2026', sorted, { ex: TTL })
+  await kv.set('league:leaders:2026', sorted)
   const timestamp = new Date().toISOString()
   await kv.set('meta:last_updated', timestamp)
   return { refreshed: allZones.length, timestamp, via: 'kv' }
