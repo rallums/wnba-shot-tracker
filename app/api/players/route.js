@@ -13,6 +13,6 @@ export async function GET() {
     abbr: p.TEAM_ABBREVIATION,
   }))
 
-  await kv.set('players:2026', clean, { ex: 86400 }).catch(() => {})
+  await kv.set('players:2026', clean).catch(() => {})
   return Response.json(clean)
 }
